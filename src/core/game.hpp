@@ -4,6 +4,7 @@
 #include "game_field.hpp"
 #include "../entities/player_robot.hpp"
 #include "../entities/enemy_robot.hpp"
+#include "../entities/robot_factory.hpp"
 #include "commands.hpp"
 #include "direction.hpp"
 #include <vector>
@@ -14,8 +15,9 @@ private:
     GameField game_field_;
     PlayerRobot player_robot_;
     std::list<EnemyRobot> robots_;
+    std::list<RobotFactory> factories_;
     bool is_players_move_;
-
+    int max_id_;
 public:
     enum class GameStatuses{
         kGameOver,
@@ -29,12 +31,14 @@ private:
 
     Game(const GameField &game_field,
     const PlayerRobot &player_robot,
-    const std::vector<EnemyRobot> &robots);
+    const std::vector<EnemyRobot> &robots,
+    const std::vector<RobotFactory> &factories);
     ~Game() = default;
     
     const GameField& Field() const;
     const PlayerRobot& Player() const;
     const std::list<EnemyRobot>& Robots() const;
+    const std::list<RobotFactory>& Factories() const;
 
     bool ProcessPlayerCommans(Command cmd);
     bool TryMove(Robot &robot, Direction direction);
@@ -49,6 +53,11 @@ private:
     
     void Kill(Robot *robot);
     void SetGameStatus(GameStatuses status);
+    void BuildingsMove();
+    
+    RobotFactory *FactoryOnPosition(Position position);
+    bool SpawnRobot(EnemyRobot robot, Position pos);
+    int GetId();
 
 };
 

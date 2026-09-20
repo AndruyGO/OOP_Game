@@ -33,12 +33,11 @@ void Application::Run() {
 
             
 
-            if(game_.IsPlayersMove()){
-                if(input_.HasCommand() && input_.ReadCommand() == Command::kQuit){
-                    window_.close();
-                    break;
-                }
-            }
+        if(input_.HasCommand() && input_.ReadCommand() == Command::kQuit){
+            window_.close();
+            break;
+        }
+            
         }
 
         render_.Draw(game_);
