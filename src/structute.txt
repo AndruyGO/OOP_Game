@@ -1,0 +1,8 @@
+project/
+├── Makefile
+├── src/
+│   ├── core/       (game, game_field, cell, position, direction, commands)
+│   ├── entities/   (robot, player_robot, enemy_robot)
+│   ├── io/         (input_system, render, application)
+│   └── main.cpp
+└── build/          (сюда .o)
