@@ -57,6 +57,9 @@ void PlayerRobot::RankUp () {
         max_health_ += 50;
         max_energy_ += 50;
         damage_ += 50;
+
+        now_energy_ = max_energy_;
+        now_health_ = max_health_;
     }
 }
 

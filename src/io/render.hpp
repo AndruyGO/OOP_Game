@@ -21,6 +21,7 @@ public:
     void DrawField(const GameField& field);
     void DrawPlayer(const PlayerRobot& player);
     void DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field);
+    void DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field);
 
     void DrawCenteredText(const std::string& str, sf::Color color);
 

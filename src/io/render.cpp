@@ -14,6 +14,8 @@ void Render::Draw(const Game& game) {
     DrawField(game.Field());
     DrawPlayer(game.Player());
     DrawEnemies(game.Robots(), game.Field());
+    DrawBuildings(game.Factories(), game.Field());
+
     if(game.GameStatus() == Game::GameStatuses::kGameOver){
         DrawCenteredText("Game Over", sf::Color::Red);
     } else if(game.GameStatus() == Game::GameStatuses::kGamePassed) {
@@ -59,6 +61,23 @@ void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& f
         }
     }
 }
+
+void Render::DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field) {
+    for (const auto& b : factories) {
+        Position pos = b.TopLeftPosition();
+        for (int y = pos.Y(); y < pos.Y() + b.Size(); ++y) {
+        for (int x = pos.X(); x < pos.X() + b.Size(); ++x) {
+            sf::RectangleShape tile({tile_size_, tile_size_});
+            tile.setPosition(x * tile_size_, y * tile_size_);
+            if(field.GetCell(x, y).IsVisited() || SHOW_NONVISITED_CELLS) {
+                tile.setFillColor(sf::Color::Yellow);
+                window_.draw(tile);
+            }
+        }
+    }
+    }
+}
+
 
 
 void Render::DrawCenteredText(const std::string& str, sf::Color color) {
