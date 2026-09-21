@@ -116,7 +116,7 @@ bool Game::TryMove(Robot &robot, Position next_position) {
         }else if(another_robot != nullptr){
             robot.Interact(*another_robot);
             if(another_robot->NowHealth() <= 0) {
-                if(robot.Id() == 1){
+                if(robot.Id() == player_robot_.Id()){
                     player_robot_.AddNowXP(25);
                     player_robot_.RankUp();
                 }
@@ -236,7 +236,7 @@ bool Game::SpawnRobot(EnemyRobot robot, Position pos) {
         robots_.push_back(robot);
         robots_.back().SetPosition(pos);
         return 1;
-        }
+    }
 
     return 0;
 }

@@ -5,7 +5,7 @@
 #include <SFML/Graphics.hpp>
 #include "../core/game.hpp"
 
-#define SHOW_NONVISITED_CELLS 1
+#define SHOW_NONVISITED_CELLS 0
 
 class Render {
 public:

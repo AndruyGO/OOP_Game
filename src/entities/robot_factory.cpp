@@ -14,9 +14,10 @@ RobotFactory::RobotFactory(int id, Position top_left_position, bool is_invulnera
 
     void RobotFactory::Move() {
         ReduceMovesUntillNextMove(1);
-        if(IsReady()) robots_inside_++;
-
-        if(MovesUntillNextMove() <= 0) ResetMovesUntillNextMove();
+        if(IsReady()) {
+            robots_inside_++;
+            ResetMovesUntillNextMove();
+        }
     }
     
     void RobotFactory::AddRobotsInside(int value) {
