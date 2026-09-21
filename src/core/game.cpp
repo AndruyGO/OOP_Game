@@ -148,10 +148,19 @@ void Game::Kill(Robot *robot){
         SetGameStatus(GameStatuses::kGameOver);
     }else{
         robots_.erase(std::find(robots_.begin(), robots_.end(), *robot));
-        if(robots_.empty()){
+        if(IsWin()){
             SetGameStatus(GameStatuses::kGamePassed);
         }
     }
+}
+
+bool Game::IsWin() const {
+    for(auto robot : robots_){
+        if(robot.IsFriendly() == 0){
+            return false;
+        }
+    }
+    return true;
 }
 
 

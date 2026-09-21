@@ -50,6 +50,7 @@ private:
 
     bool IsPlayersMove() const;
     void SwitchMove();
+    bool IsWin() const;
     
     void Kill(Robot *robot);
     void SetGameStatus(GameStatuses status);

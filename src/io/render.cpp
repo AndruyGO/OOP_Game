@@ -56,7 +56,11 @@ void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& f
             sf::CircleShape shape(tile_size_ / 2.f - 1.f);
             shape.setPosition(r.NowPosition().X() * tile_size_,
                             r.NowPosition().Y() * tile_size_);
-            shape.setFillColor(sf::Color::Red);
+            switch(r.IsFriendly()){
+                case false: shape.setFillColor(sf::Color::Red); break;
+                case true: shape.setFillColor(sf::Color::Blue); break;
+            }
+            
             window_.draw(shape);
         }
     }

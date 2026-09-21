@@ -54,6 +54,8 @@ int main() {
     std::vector<EnemyRobot> enemies;
     enemies.emplace_back(2, 100, 100, 50, false, 1);
     enemies.back().SetPosition({7, 7});
+    enemies.emplace_back(2, 100, 100, 50, true, 1);
+    enemies.back().SetPosition({1, 1});
 
     std::vector<RobotFactory> factories;
     factories.push_back(RobotFactory(3, {5,5}, 0, 200, 6));
