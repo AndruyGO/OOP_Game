@@ -5,7 +5,6 @@
 
 
 GameField::GameField(const std::vector<std::vector<int>> &layout,
-        const std::vector<std::vector<bool>> &is_passable,
         const std::vector<std::vector<int>> &movement_costs,
         const Position &player_start_position) :
         player_start_position_(player_start_position) {
@@ -18,7 +17,6 @@ GameField::GameField(const std::vector<std::vector<int>> &layout,
     for(int y = 0; y < H_; y++){
         for(int x = 0; x < W_; x++){
             game_field_[y][x].SetType(layout[y][x]);
-            game_field_[y][x].SetPassable(is_passable[y][x]);
             game_field_[y][x].SetMovementCost(movement_costs[y][x]);
         }
     }
@@ -36,7 +34,6 @@ GameField::GameField(int H, int W) {
     for(int y = 0; y < H_; y++){
         for(int x = 0; x < W_; x++){
             game_field_[y][x].SetType(0);
-            game_field_[y][x].SetPassable(1);
             game_field_[y][x].SetMovementCost(1);
         }
     }
@@ -56,14 +53,14 @@ void GameField::AddFrame(){
     for(int x = 0; x < W_; x++){
         game_field_[0][x].SetType(0);
         game_field_[H_-1][x].SetType(0);
-        game_field_[0][x].SetPassable(0);
-        game_field_[H_-1][x].SetPassable(0);
+        game_field_[0][x].SetMovementCost(-1);
+        game_field_[H_-1][x].SetMovementCost(-1);
     }
     for(int y = 0; y < H_; y++){
         game_field_[y][0].SetType(0);
         game_field_[y][W_-1].SetType(0);
-        game_field_[y][0].SetPassable(0);
-        game_field_[y][W_-1].SetPassable(0);
+        game_field_[y][0].SetMovementCost(-1);
+        game_field_[y][W_-1].SetMovementCost(-1);
     }
 }
 

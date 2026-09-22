@@ -11,10 +11,10 @@ void Render::Draw(const Game& game) {
         throw std::runtime_error("Font not loaded");
 
     window_.clear(sf::Color::Black);
-    DrawField(game.Field());
+    DrawField(game.Field(), game.Player());
     DrawPlayer(game.Player());
-    DrawEnemies(game.Robots(), game.Field());
-    DrawBuildings(game.Factories(), game.Field());
+    DrawEnemies(game.Robots(), game.Field(), game.Player());
+    DrawBuildings(game.Factories(), game.Field(), game.Player());
 
     if(game.GameStatus() == Game::GameStatuses::kGameOver){
         DrawCenteredText("Game Over", sf::Color::Red);
@@ -24,7 +24,7 @@ void Render::Draw(const Game& game) {
     window_.display();
 }
 
-void Render::DrawField(const GameField& field) {
+void Render::DrawField(const GameField& field, const PlayerRobot& player) {
     for (int y = 0; y < field.Height(); ++y) {
         for (int x = 0; x < field.Width(); ++x) {
             sf::RectangleShape tile({tile_size_ - 1.f, tile_size_ - 1.f});
@@ -37,6 +37,14 @@ void Render::DrawField(const GameField& field) {
                     default: tile.setFillColor(sf::Color(0, 0, 0)); break;
                 }
                 window_.draw(tile);
+                
+                if(player.NowPosition().DistanceTo(x, y) > player.VisibilityRadius()) {
+                    sf::RectangleShape fadetile({tile_size_ - 1.f, tile_size_ - 1.f});
+                    fadetile.setPosition(x * tile_size_, y * tile_size_);
+                    fadetile.setFillColor(sf::Color(0, 0, 0, 128));
+                    window_.draw(fadetile);
+                }
+
             }
         }
     }
@@ -50,7 +58,7 @@ void Render::DrawPlayer(const PlayerRobot& player) {
     window_.draw(shape);
 }
 
-void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field) {
+void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field, const PlayerRobot& player) {
     for (const auto& r : robots) {
         if(field.GetCell(r.NowPosition()).IsVisited() || SHOW_NONVISITED_CELLS) {
             sf::CircleShape shape(tile_size_ / 2.f - 1.f);
@@ -61,12 +69,12 @@ void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& f
                 case true: shape.setFillColor(sf::Color::Blue); break;
             }
             
-            window_.draw(shape);
+            if(player.NowPosition().DistanceTo(r.NowPosition().X(), r.NowPosition().Y()) <= player.VisibilityRadius()) window_.draw(shape);
         }
     }
 }
 
-void Render::DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field) {
+void Render::DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field, const PlayerRobot& player) {
     for (const auto& b : factories) {
         Position pos = b.TopLeftPosition();
         for (int y = pos.Y(); y < pos.Y() + b.Size(); ++y) {
@@ -76,6 +84,13 @@ void Render::DrawBuildings(const std::list<RobotFactory>& factories, const GameF
             if(field.GetCell(x, y).IsVisited() || SHOW_NONVISITED_CELLS) {
                 tile.setFillColor(sf::Color::Yellow);
                 window_.draw(tile);
+
+                if(player.NowPosition().DistanceTo(x, y) > player.VisibilityRadius()) {
+                    sf::RectangleShape fadetile({tile_size_, tile_size_});
+                    fadetile.setPosition(x * tile_size_, y * tile_size_);
+                    fadetile.setFillColor(sf::Color(0, 0, 0, 128));
+                    window_.draw(fadetile);
+                }
             }
         }
     }

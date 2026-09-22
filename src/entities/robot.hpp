@@ -45,7 +45,6 @@ public:
     
     void ReduceMovesRemain(int value);
     
-    void Interact(class Robot &another_robot);
     void RecoverMoves();
     
     void Hit(int value);

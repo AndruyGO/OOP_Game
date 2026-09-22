@@ -18,10 +18,10 @@ public:
     private:
     float tile_size_;
 
-    void DrawField(const GameField& field);
+    void DrawField(const GameField& field, const PlayerRobot& player);
     void DrawPlayer(const PlayerRobot& player);
-    void DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field);
-    void DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field);
+    void DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field, const PlayerRobot& player);
+    void DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field, const PlayerRobot& player);
 
     void DrawCenteredText(const std::string& str, sf::Color color);
 

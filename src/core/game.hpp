@@ -35,6 +35,8 @@ private:
     const std::vector<RobotFactory> &factories);
     ~Game() = default;
     
+    void Move(Command cmd);
+
     const GameField& Field() const;
     const PlayerRobot& Player() const;
     const std::list<EnemyRobot>& Robots() const;
@@ -59,6 +61,8 @@ private:
     RobotFactory *FactoryOnPosition(Position position);
     bool SpawnRobot(EnemyRobot robot, Position pos);
     int GetId();
+
+    void Interact(Robot &actor, Robot &target);
 
 };
 

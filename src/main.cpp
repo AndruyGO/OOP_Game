@@ -20,18 +20,6 @@ int main() {
      {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
      {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
 
-    std::vector<std::vector<bool>> passage_map = 
-    {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 1, 1, 1, 1, 0, 0, 1, 1, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
-     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-
     std::vector<std::vector<int>> movement_costs_map = 
     {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
      {0, 1, 1, 1, 1, 1, 1, 1, 1, 0},
@@ -46,7 +34,7 @@ int main() {
      
     
 
-    GameField field(type_map, passage_map, movement_costs_map, Position(2, 2));
+    GameField field(type_map, movement_costs_map, Position(2, 2));
     field.AddFrame();
     PlayerRobot player(1, 100, 100, 50, 1, 1, 1, 3);
     player.SetPosition(field.PlayerStartPosition());

@@ -16,30 +16,15 @@ void Application::Run() {
             input_.HandleEvent(event);
         }
 
-        if(game_.GameStatus() == Game::GameStatuses::kGameGoing) {
-            if(game_.IsPlayersMove()){
-                if(input_.HasCommand()){
-                    Command cmd = input_.ReadCommand();
-                    if (cmd == Command::kQuit) {
-                        window_.close();
-                        break;
-                    }
-                    game_.ProcessPlayerCommans(cmd);
-                }
-            } else {
-                game_.RobotsMove();
-            }
-        } else {
-
-            
-
-        if(input_.HasCommand() && input_.ReadCommand() == Command::kQuit){
+        Command cmd = input_.ReadCommand();
+        
+        if (cmd == Command::kQuit) {
             window_.close();
             break;
         }
+        
+        if(game_.GameStatus() == Game::GameStatuses::kGameGoing) game_.Move(cmd);
             
-        }
-
         render_.Draw(game_);
     }
 }

@@ -1,9 +1,8 @@
 #include "cell.hpp"
 #include <stdexcept>
 
-Cell::Cell(int type, bool passable, bool is_visited, int movement_cost)
+Cell::Cell(int type, bool is_visited, int movement_cost)
     : type_(type),
-      passable_(passable),
       is_visited_(is_visited),
       movement_cost_(movement_cost) {}
 
@@ -24,16 +23,12 @@ void Cell::SetVisited(bool visited) {
 }
 
 bool Cell::Passable() const {
-    return passable_;
-}
-
-void Cell::SetPassable(bool passable) {
-    passable_ = passable;
+    return !(movement_cost_ == -1);
 }
 
 void Cell::SetMovementCost(int value){
     if(value < -2){
-        movement_cost_ = -2;
+        movement_cost_ = -1;
     }else{
         movement_cost_ = value;
     }

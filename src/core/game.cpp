@@ -34,6 +34,19 @@ Game::Game(const GameField &game_field,
         max_id_++;
     }
 
+
+void Game::Move(Command cmd) {
+    
+    if(GameStatus() == Game::GameStatuses::kGameGoing) {
+        if(IsPlayersMove()){
+            if(cmd == Command::kNone) return;
+            ProcessPlayerCommans(cmd); 
+        } else {
+            RobotsMove();
+        }
+    }
+}
+
 const GameField& Game::Field() const { return game_field_; }
 const PlayerRobot& Game::Player() const { return player_robot_; }
 const std::list<EnemyRobot>& Game::Robots() const { return robots_; }
@@ -114,14 +127,7 @@ bool Game::TryMove(Robot &robot, Position next_position) {
         if(another_robot == nullptr && factory == nullptr){
             robot.SetPosition(next_position);
         }else if(another_robot != nullptr){
-            robot.Interact(*another_robot);
-            if(another_robot->NowHealth() <= 0) {
-                if(robot.Id() == player_robot_.Id()){
-                    player_robot_.AddNowXP(25);
-                    player_robot_.RankUp();
-                }
-                Kill(another_robot);
-            }
+            Interact(robot, *another_robot);
         }
         return true;
     }else{
@@ -141,6 +147,24 @@ bool Game::TryMove(Robot &robot, Direction direction) {
     return TryMove(robot, next_position);
 
 }
+
+
+void Game::Interact(Robot &actor, Robot &target) {
+    if(actor.IsFriendly() == target.IsFriendly()){
+        target.Heal(actor.kHealAmount);
+    }else{
+        target.Hit(actor.Damage());
+        if(target.NowHealth() <= 0) {
+            if(actor.Id() == player_robot_.Id()){
+                player_robot_.AddNowXP(25);
+                player_robot_.RankUp();
+            }
+            Kill(&target);
+        }
+    }
+    
+}
+
 void Game::Kill(Robot *robot){
     if(robot == nullptr) return;
 

@@ -114,14 +114,6 @@ void Robot::Heal(int value){
     SetNowHealth(NowHealth()+value);
 }
 
-void Robot::Interact(class Robot &another_robot){
-    if(another_robot.IsFriendly() == IsFriendly()){
-        another_robot.Heal(kHealAmount);
-    }else{
-        another_robot.Hit(Damage());
-    }
-}
-
 void Robot::AddNowEnergy(int value){
     SetNowEnergy(now_energy_+value);
 }

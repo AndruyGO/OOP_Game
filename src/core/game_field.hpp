@@ -16,7 +16,6 @@ private:
     
 public:
     GameField(const std::vector<std::vector<int>> &layout,
-        const std::vector<std::vector<bool>> &is_passable,
         const std::vector<std::vector<int>> &movement_costs,
         const Position &player_start_position);
     
