@@ -1,7 +1,7 @@
 #include "application.hpp"
 
 Application::Application(Game game)
-    : window_(sf::VideoMode(800, 800), "Game",
+    : window_(sf::VideoMode(1100, 800), "Game",
               sf::Style::Titlebar | sf::Style::Close),
       game_(game),
       render_(window_),

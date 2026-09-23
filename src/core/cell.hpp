@@ -4,9 +4,15 @@
 class Cell{
 private:
     int type_;
-    bool is_visited_;    
+    bool is_visited_;
     int movement_cost_;
 public:
+
+    enum class TypeOfCell {
+        kWall,
+        kGrass,
+        kSwamp
+    };
     Cell(int type, bool is_visited = false, int movement_cost_ = 1);
     ~Cell() = default;
 

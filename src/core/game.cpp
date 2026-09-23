@@ -127,7 +127,7 @@ bool Game::TryMove(Robot &robot, Position next_position) {
         if(another_robot == nullptr && factory == nullptr){
             robot.SetPosition(next_position);
         }else if(another_robot != nullptr){
-            Interact(robot, *another_robot);
+            InteractWithRobot(robot, *another_robot);
         }
         return true;
     }else{
@@ -149,7 +149,7 @@ bool Game::TryMove(Robot &robot, Direction direction) {
 }
 
 
-void Game::Interact(Robot &actor, Robot &target) {
+void Game::InteractWithRobot(Robot &actor, Robot &target) {
     if(actor.IsFriendly() == target.IsFriendly()){
         target.Heal(actor.kHealAmount);
     }else{
@@ -164,6 +164,7 @@ void Game::Interact(Robot &actor, Robot &target) {
     }
     
 }
+
 
 void Game::Kill(Robot *robot){
     if(robot == nullptr) return;

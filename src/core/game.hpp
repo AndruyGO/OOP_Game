@@ -62,7 +62,8 @@ private:
     bool SpawnRobot(EnemyRobot robot, Position pos);
     int GetId();
 
-    void Interact(Robot &actor, Robot &target);
+    void InteractWithRobot(Robot &actor, Robot &target);
+    void InteractWithBuilding(Robot &actor, Building &target);
 
 };
 
