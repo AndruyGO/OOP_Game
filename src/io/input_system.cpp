@@ -11,6 +11,7 @@ void InputSystem::HandleEvent(const sf::Event& event) {
         case sf::Keyboard::A:      pending_ = Command::kMoveLeft;  break;
         case sf::Keyboard::D:      pending_ = Command::kMoveRight; break;
         case sf::Keyboard::Q:      pending_ = Command::kWait;      break;
+        case sf::Keyboard::Z:      pending_ = Command::kUseAreaStrike;      break;
         case sf::Keyboard::Escape: pending_ = Command::kQuit;      break;
         default: break;
     }

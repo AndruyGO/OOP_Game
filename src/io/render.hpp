@@ -35,6 +35,7 @@ public:
 
 private:
     sf::Texture tiles_texture_;
+    sf::Texture robot_factory_;
     sf::RenderWindow& window_;
     sf::Font font_;
 };

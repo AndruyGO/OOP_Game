@@ -9,7 +9,8 @@ enum class Command {
     kMoveLeft,
     kMoveRight,
     kWait,
-    kQuit
+    kQuit,
+    kUseAreaStrike
 };
 
 #endif

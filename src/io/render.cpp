@@ -11,6 +11,8 @@ void Render::Draw(const Game& game) {
         throw std::runtime_error("Font not loaded");
     if (!tiles_texture_.loadFromFile("../assets/tiles.png"))
         throw std::runtime_error("Tiles not loaded");
+    if(!robot_factory_.loadFromFile("../assets/robot_factory.png"))
+        throw std::runtime_error("Tiles not loaded");
 
     window_.clear(sf::Color::Black);
     DrawField(game.Field(), game.Player());
@@ -100,8 +102,22 @@ void Render::DrawBuildings(const std::list<RobotFactory>& factories, const GameF
             sf::RectangleShape tile({tile_size_, tile_size_});
             tile.setPosition(x * tile_size_, y * tile_size_);
             if(field.GetCell(x, y).IsVisited() || SHOW_NONVISITED_CELLS) {
-                tile.setFillColor(sf::Color::Yellow);
+                
+                sf::Sprite tile(robot_factory_);
+                tile.setTextureRect(sf::IntRect(
+                    (x - pos.X())*kTileSize,   // x в атласе
+                    (y - pos.Y())*kTileSize,   // y в атласе
+                    kTileSize,          // ширина
+                    kTileSize           // высота
+                ));
+
+                tile.setPosition(x * tile_size_, y * tile_size_);
+                float scale = tile_size_ / kTileSize;
+                tile.setScale(scale, scale);
+                
                 window_.draw(tile);
+
+
 
                 if(player.NowPosition().DistanceTo(x, y) > player.VisibilityRadius()) {
                     sf::RectangleShape fadetile({tile_size_, tile_size_});

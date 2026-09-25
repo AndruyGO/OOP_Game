@@ -9,6 +9,11 @@ public:
     EnemyRobot();
     ~EnemyRobot() = default;
 
+    EnemyRobot(const EnemyRobot&) = delete;
+    EnemyRobot& operator=(const EnemyRobot&) = delete;
+    EnemyRobot(EnemyRobot&&) = default;
+    EnemyRobot& operator=(EnemyRobot&&) = default;
+
 };
 
 

@@ -14,6 +14,11 @@ public:
     PlayerRobot();
     ~PlayerRobot() = default;
 
+    PlayerRobot(const PlayerRobot&) = delete;
+    PlayerRobot& operator=(const PlayerRobot&) = delete;
+    PlayerRobot(PlayerRobot&&) = default;
+    PlayerRobot& operator=(PlayerRobot&&) = default;
+
     int Rank() const;
     int NowXp() const;
     int XpRequired() const;

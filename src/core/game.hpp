@@ -7,6 +7,7 @@
 #include "../entities/robot_factory.hpp"
 #include "commands.hpp"
 #include "direction.hpp"
+#include "../abilities/ability.hpp"
 #include <vector>
 #include <list>
 
@@ -29,16 +30,22 @@ private:
 
     public:
 
-    Game(const GameField &game_field,
-    const PlayerRobot &player_robot,
-    const std::vector<EnemyRobot> &robots,
-    const std::vector<RobotFactory> &factories);
+    Game(GameField game_field,
+    PlayerRobot player_robot,
+    std::vector<EnemyRobot> robots,
+    std::vector<RobotFactory> factories);
     ~Game() = default;
     
+    Game(Game&&) = default;
+    Game& operator=(Game&&) = default;
+    Game(const Game&) = delete;
+    Game& operator=(const Game&) = delete;
+
     void Move(Command cmd);
 
     const GameField& Field() const;
     const PlayerRobot& Player() const;
+    PlayerRobot& Player();
     const std::list<EnemyRobot>& Robots() const;
     const std::list<RobotFactory>& Factories() const;
 
@@ -64,7 +71,10 @@ private:
 
     void InteractWithRobot(Robot &actor, Robot &target);
     void InteractWithBuilding(Robot &actor, Building &target);
-
+    
+    void AddAbility(Robot &robot, Ability::AbilityType ability_type);
+    void UseAbility(Robot &robot, Ability::AbilityType ability_type);
+    
 };
 
 #endif
