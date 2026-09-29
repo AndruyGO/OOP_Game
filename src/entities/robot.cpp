@@ -1,8 +1,8 @@
 
 #include "robot.hpp"
 #include "enemy_robot.hpp"
-
-
+#include "../abilities/ability.hpp"
+#include <iostream>
 
 Robot::Robot(int id, int max_health, int max_energy, int damage,
     bool is_friendly, int speed)
@@ -23,6 +23,13 @@ Robot::Robot(int id, int max_health, int max_energy, int damage,
     bool Robot::operator == (const Robot &another_robot) const {
         return id_ == another_robot.Id();  
     }
+Robot::~Robot() {
+    for(auto &a : abilities_){
+        delete a;
+        a = nullptr;
+    }
+    abilities_.clear();
+}
 
 int Robot::MaxHealth() const { return max_health_; }
 int Robot::MaxEnergy() const { return max_energy_; }
@@ -117,4 +124,12 @@ void Robot::Heal(int value){
 
 void Robot::AddNowEnergy(int value){
     SetNowEnergy(now_energy_+value);
+}
+
+std::list<Ability*>& Robot::Abilities() {
+    return abilities_;
+}
+
+const std::list<Ability*>& Robot::Abilities() const {
+    return abilities_;
 }

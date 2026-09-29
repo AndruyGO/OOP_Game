@@ -4,20 +4,27 @@
 #include "game.hpp"
 #include "game_field.hpp"
 #include "direction.hpp"
+#include <utility>
 
 #include <iostream>
+#include "../abilities/area_strike.hpp"
+#include "../abilities/heal.hpp"
+#include "../abilities/far_hit.hpp"
+#include "../abilities/teleport.hpp"
 
 
-Game::Game(const GameField &game_field,
-    const PlayerRobot &player_robot,
-    const std::vector<EnemyRobot> &robots,
-    const std::vector<RobotFactory> &factories)
-  : game_field_(game_field),
-    player_robot_(player_robot),
-    robots_(robots.begin(), robots.end()),
+Game::Game(GameField game_field,
+    PlayerRobot player_robot,
+    std::vector<EnemyRobot> robots,
+    std::vector<RobotFactory> factories)
+  : game_field_(std::move(game_field)),
+    player_robot_(std::move(player_robot)),
+    robots_(std::make_move_iterator(robots.begin()),
+            std::make_move_iterator(robots.end())),
     factories_(factories.begin(), factories.end()),
     is_players_move_(true),
-    game_status_(GameStatuses::kGameGoing) {
+    game_status_(GameStatuses::kGameGoing),
+    input_status_(Game::InputStatuses::kStandard) {
 
         game_field_.OpenCells(game_field_.PlayerStartPosition(), 
                               player_robot_.VisibilityRadius());
@@ -35,11 +42,11 @@ Game::Game(const GameField &game_field,
     }
 
 
-void Game::Move(Command cmd) {
+void Game::Move(InputContainer cmd) {
     
     if(GameStatus() == Game::GameStatuses::kGameGoing) {
         if(IsPlayersMove()){
-            if(cmd == Command::kNone) return;
+            if(cmd.command == Command::kNone) return;
             ProcessPlayerCommans(cmd); 
         } else {
             RobotsMove();
@@ -49,6 +56,7 @@ void Game::Move(Command cmd) {
 
 const GameField& Game::Field() const { return game_field_; }
 const PlayerRobot& Game::Player() const { return player_robot_; }
+PlayerRobot& Game::Player() { return player_robot_; }
 const std::list<EnemyRobot>& Game::Robots() const { return robots_; }
 const std::list<RobotFactory>& Game::Factories() const { return factories_; }
 
@@ -59,9 +67,11 @@ void Game::SwitchMove() {
     is_players_move_ = !is_players_move_;
 }
 
-bool Game::ProcessPlayerCommans(Command cmd) {
+bool Game::ProcessPlayerCommans(InputContainer cmd) {
     bool is_executed = 0;
-    switch (cmd) {
+
+    if(InputStatus() == Game::InputStatuses::kStandard) {
+    switch (cmd.command) {
         case Command::kMoveUp:
             is_executed = TryMove(player_robot_, Direction::kUp);
             break;
@@ -82,6 +92,22 @@ bool Game::ProcessPlayerCommans(Command cmd) {
             break;
         case Command::kNone:
             break;
+        case Command::kUseAreaStrike: case Command::kUseHeal:
+            UseAbility(player_robot_, Ability::AbilityType::kAreaStrike); break;
+        case Command::kUseFarHit:
+            if(!CanRobotUseAbility(player_robot_, Ability::AbilityType::kFarHit)) break;
+            last_ability_ = Ability::AbilityType::kFarHit;
+            input_status_ = Game::InputStatuses::kWaitingForMouseToAbility;
+            break;
+        case Command::kUseTeleport:
+                if(!CanRobotUseAbility(player_robot_, Ability::AbilityType::kTeleport)) break;
+                last_ability_ = Ability::AbilityType::kTeleport;
+                input_status_ = Game::InputStatuses::kWaitingForMouseToAbility;
+                break;
+        case Command::kSelectTarget:
+            //std::cout << cmd.field_mouse_position.X() << " " << cmd.field_mouse_position.Y() << std::endl;
+        default:
+            break;
     }
     if (is_executed) {
         player_robot_.ReduceMovesRemain(game_field_.GetCell(player_robot_.NowPosition()).MovementCost());
@@ -90,6 +116,22 @@ bool Game::ProcessPlayerCommans(Command cmd) {
     }
     if(player_robot_.MovesRemain() == 0) SwitchMove();
     return is_executed;
+
+    } else {
+        if(cmd.command == Command::kSelectTarget) {
+            UseAbility(player_robot_, last_ability_, cmd.field_mouse_position);
+            input_status_ = Game::InputStatuses::kStandard;
+            game_field_.OpenCells(player_robot_.NowPosition(),
+                              player_robot_.VisibilityRadius());
+            return true;
+        }else if(cmd.command == Command::kCancel) {
+            input_status_ = Game::InputStatuses::kStandard;
+            return true;
+        }
+    }
+
+
+    return false;
 }
 
 Robot *Game::RobotOnPosition(Position position) {
@@ -116,18 +158,21 @@ RobotFactory *Game::FactoryOnPosition(Position position) {
 }
 
 bool Game::TryMove(Robot &robot, Position next_position) {
-    auto factory = FactoryOnPosition(next_position);
 
     if(game_field_.IsInside(next_position) && 
         game_field_.GetCell(next_position).Passable() &&
-        game_field_.GetCell(next_position).MovementCost() <= robot.MovesRemain() &&
-        factory == nullptr){
-        
+        game_field_.GetCell(next_position).MovementCost() <= robot.MovesRemain()){
+
+        auto factory = FactoryOnPosition(next_position);
         auto another_robot = RobotOnPosition(next_position);
         if(another_robot == nullptr && factory == nullptr){
             robot.SetPosition(next_position);
         }else if(another_robot != nullptr){
             InteractWithRobot(robot, *another_robot);
+        }else if(factory != nullptr) {
+            InteractWithBuilding(robot, *factory);
+        } else {
+            return false;
         }
         return true;
     }else{
@@ -148,8 +193,7 @@ bool Game::TryMove(Robot &robot, Direction direction) {
 
 }
 
-
-void Game::InteractWithRobot(Robot &actor, Robot &target) {
+void Game::InteractWithBuilding(Robot &actor, Building &target) {
     if(actor.IsFriendly() == target.IsFriendly()){
         target.Heal(actor.kHealAmount);
     }else{
@@ -162,9 +206,31 @@ void Game::InteractWithRobot(Robot &actor, Robot &target) {
             Kill(&target);
         }
     }
+}
+void Game::InteractWithRobot(Robot &actor, Robot &target) {
+    if(actor.IsFriendly() == target.IsFriendly()){
+        target.Heal(actor.kHealAmount);
+    }else{
+        target.Hit(actor.Damage());
+        if(target.NowHealth() <= 0) {
+            if(actor.Id() == player_robot_.Id()){
+                player_robot_.AddNowXP(50);
+                player_robot_.RankUp();
+            }
+            Kill(&target);
+        }
+    }
     
 }
 
+void Game::Kill(Building *building) {
+    if(building == nullptr) return;
+
+    factories_.erase(std::find(factories_.begin(), factories_.end(), *building));
+    if(IsWin()){
+        SetGameStatus(GameStatuses::kGamePassed);
+    }
+}
 
 void Game::Kill(Robot *robot){
     if(robot == nullptr) return;
@@ -180,8 +246,13 @@ void Game::Kill(Robot *robot){
 }
 
 bool Game::IsWin() const {
-    for(auto robot : robots_){
+    for(auto& robot : robots_){
         if(robot.IsFriendly() == 0){
+            return false;
+        }
+    }
+    for(auto& factory : factories_){
+        if(factory.IsFriendly() == 0){
             return false;
         }
     }
@@ -240,6 +311,10 @@ Game::GameStatuses Game::GameStatus() const {
     return game_status_;
 }
 
+Game::InputStatuses Game::InputStatus() const {
+    return input_status_;
+}
+
 
 
 
@@ -248,7 +323,7 @@ void Game::BuildingsMove() {
 
         factory.Move();
         if(factory.RobotsInside() > 0){
-            bool is_spawned = SpawnRobot(EnemyRobot(GetId(), 100, 100, 50, 0, 1), factory.TopLeftPosition().Left());
+            bool is_spawned = SpawnRobot(EnemyRobot(GetId(), 100, 100, 50, factory.IsFriendly(), 1), factory.TopLeftPosition().Left());
             if(is_spawned) factory.ReduceRobotsInside(1);
         }
     }
@@ -258,10 +333,63 @@ bool Game::SpawnRobot(EnemyRobot robot, Position pos) {
     if(game_field_.GetCell(pos).Passable() == 1 && RobotOnPosition(pos) == nullptr &&
         FactoryOnPosition(pos) == nullptr) {
         
-        robots_.push_back(robot);
+        robots_.push_back(std::move(robot));
         robots_.back().SetPosition(pos);
         return 1;
     }
 
     return 0;
+}
+
+ Ability::AbilityType Game::LastAbility() const {
+    return last_ability_;
+ }
+
+
+void Game::AddAbility(Robot &robot, Ability::AbilityType ability_type) {
+    switch(ability_type){
+        case Ability::AbilityType::kAreaStrike:
+            robot.Abilities().push_back( new AreaStrike(1) );
+            break;
+        case Ability::AbilityType::kHeal:
+            robot.Abilities().push_back( new Heal(1) );
+            break;
+        case Ability::AbilityType::kFarHit:
+            robot.Abilities().push_back( new FarHit(1) );
+            break;
+        case Ability::AbilityType::kTeleport:
+            robot.Abilities().push_back( new Teleport(1) );
+            break;
+    }
+}
+
+bool Game::CanRobotUseAbility(Robot &robot, Ability::AbilityType ability_type) {
+    for(auto &ability : robot.Abilities()) {
+        if (ability->GetAbilityType() == ability_type) {
+            if(ability->EnergyCost() <= robot.NowEnergy()) return true;
+            break;
+        }
+    }
+    return false;
+}
+
+void Game::UseAbility(Robot &robot, Ability::AbilityType ability_type, Position pos) {
+    for(auto &ability : robot.Abilities()) {
+        if (ability->GetAbilityType() == ability_type) {
+            ability->Use(robot, *this, pos);
+            break;
+        }
+    }
+}
+const Ability *Game::GetAbility(Robot &robot, Ability::AbilityType ability_type) const {
+    return GetAbility(robot, ability_type);
+}
+
+const Ability *Game::GetAbility(const Robot &robot, Ability::AbilityType ability_type) const {
+    for(auto &ability : robot.Abilities()) {
+        if (ability->GetAbilityType() == ability_type) {
+            return ability;
+        }
+    }
+    return nullptr;
 }

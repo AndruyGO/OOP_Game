@@ -1,9 +1,12 @@
 #include "application.hpp"
 
+#include <iostream>
+#include <utility>
+
 Application::Application(Game game)
     : window_(sf::VideoMode(1100, 800), "Game",
               sf::Style::Titlebar | sf::Style::Close),
-      game_(game),
+      game_(std::move(game)),
       render_(window_),
       input_() {}
 
@@ -16,9 +19,9 @@ void Application::Run() {
             input_.HandleEvent(event);
         }
 
-        Command cmd = input_.ReadCommand();
+        InputContainer cmd = input_.ReadCommand(render_.TileSize());
         
-        if (cmd == Command::kQuit) {
+        if (cmd.command == Command::kQuit) {
             window_.close();
             break;
         }

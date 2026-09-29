@@ -3,7 +3,7 @@
 #include "core/game_field.hpp"
 #include "entities/player_robot.hpp"
 #include "entities/enemy_robot.hpp"
-
+#include "abilities/area_strike.hpp"
 #include <vector>
 #include <iostream>
 
@@ -46,10 +46,15 @@ int main() {
     enemies.back().SetPosition({1, 1});
 
     std::vector<RobotFactory> factories;
-    factories.push_back(RobotFactory(3, {5,5}, 0, 200, 6));
+    factories.push_back(RobotFactory(3, {5,5}, 0, 200, 6, false));
 
-    Game game(field, player, enemies, factories);
-    Application app(game);
+    
+    Game game(field, std::move(player), std::move(enemies), std::move(factories));
+    game.AddAbility(game.Player(), Ability::AbilityType::kAreaStrike);
+    game.AddAbility(game.Player(), Ability::AbilityType::kHeal);
+    game.AddAbility(game.Player(), Ability::AbilityType::kFarHit);
+    game.AddAbility(game.Player(), Ability::AbilityType::kTeleport);
+    Application app(std::move(game));
     app.Run();
     return 0;
 }

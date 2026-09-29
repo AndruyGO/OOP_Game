@@ -2,6 +2,10 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 #include "../core/position.hpp"
+#include <list>
+#include <memory>
+
+class Ability;
 
 class Robot
 {
@@ -16,12 +20,18 @@ protected:
     int now_health_;
     int now_energy_;
     Position now_position_;
+    std::list<Ability*> abilities_;
 
 public:
     Robot(int of, int max_health, int max_energy,
         int damage, bool is_friendly, int speed);
 
-    virtual ~Robot() = default;
+    ~Robot();
+    
+    Robot(const Robot&) = delete;
+    Robot& operator=(const Robot&) = delete;
+    Robot(Robot&&) = default;
+    Robot& operator=(Robot&&) = default;
 
     int MaxHealth() const;
     int MaxEnergy() const;
@@ -50,10 +60,12 @@ public:
     void Hit(int value);
     void Heal(int value);
     void AddNowEnergy(int value);
+    std::list<Ability*>& Abilities();
+    const std::list<Ability*>& Abilities() const;
 
     bool operator < (const Robot &another_robot) const;
     bool operator == (const Robot &another_robot) const;
-
+    
     static constexpr int kHealAmount = 25;
 };
 

@@ -2,14 +2,11 @@
 
 
 RobotFactory::RobotFactory(int id, Position top_left_position, bool is_invulnerable,
-        int health, int coldown)
-  : Building(id, top_left_position, 2, is_invulnerable, health, 1, true),
+        int health, int coldown, bool is_friendly)
+  : Building(id, top_left_position, 2, is_invulnerable, health, 1, is_friendly),
     coldown_(coldown), 
     moves_untill_next_move_(coldown),
     robots_inside_(0) {}
-    
-    
-
     
 
     void RobotFactory::Move() {
