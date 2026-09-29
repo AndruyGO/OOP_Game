@@ -9,11 +9,10 @@ private:
     int coldown_;
     int moves_untill_next_move_;
     int robots_inside_;
-    int is_friendly_;
 
 public:
     RobotFactory(int id, Position top_left_position, bool is_invulnerable,
-        int health, int coldown);
+        int health, int coldown, bool is_friendly);
     ~RobotFactory() = default;
 
     void Move();

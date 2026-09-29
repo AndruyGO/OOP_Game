@@ -18,22 +18,26 @@ public:
     void Draw(const Game& game);
     
     
-    private:
+private:
     float tile_size_;
-
-    void DrawField(const GameField& field, const PlayerRobot& player);
-    void DrawPlayer(const PlayerRobot& player);
-    void DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field, const PlayerRobot& player);
-    void DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field, const PlayerRobot& player);
+    
+    void DrawField(const Game& game);
+    void DrawPlayer(const Game& game);
+    void DrawEnemies(const Game& game);
+    void DrawBuildings(const Game& game);
     void DrawBar(Position pos, double now, double max, sf::Color color, sf::Color text_color);
     void DrawUI(const Game& game);
     void DrawText(Position pos, const std::string &str, int size, sf::Color color);
-
+    
     void DrawCenteredText(const std::string& str, sf::Color color);
-
-
-
-private:
+    void DrawAbilityRadius(const Game &game);
+    
+    public:
+    float TileSize() const;
+    
+    
+    
+    private:
     sf::Texture tiles_texture_;
     sf::Texture robot_factory_;
     sf::RenderWindow& window_;

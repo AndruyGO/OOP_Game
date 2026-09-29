@@ -61,6 +61,7 @@ public:
     void Heal(int value);
     void AddNowEnergy(int value);
     std::list<Ability*>& Abilities();
+    const std::list<Ability*>& Abilities() const;
 
     bool operator < (const Robot &another_robot) const;
     bool operator == (const Robot &another_robot) const;

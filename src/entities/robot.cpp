@@ -129,3 +129,7 @@ void Robot::AddNowEnergy(int value){
 std::list<Ability*>& Robot::Abilities() {
     return abilities_;
 }
+
+const std::list<Ability*>& Robot::Abilities() const {
+    return abilities_;
+}

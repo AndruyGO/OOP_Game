@@ -23,6 +23,9 @@ void Position::SetPosition(Position position){
     y_ = position.Y();
 }
 
+double Position::DistanceTo(Position pos) const{
+    return DistanceTo(pos.X(), pos.Y());
+}
 double Position::DistanceTo(int x, int y) const{
     return std::sqrt((x-x_)*(x-x_) + (y-y_)*(y-y_));
 }

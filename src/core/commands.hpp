@@ -10,7 +10,12 @@ enum class Command {
     kMoveRight,
     kWait,
     kQuit,
-    kUseAreaStrike
+    kSelectTarget,
+    kUseAreaStrike,
+    kUseHeal,
+    kUseTeleport,
+    kUseFarHit,
+    kCancel
 };
 
 #endif

@@ -19,9 +19,9 @@ void Application::Run() {
             input_.HandleEvent(event);
         }
 
-        Command cmd = input_.ReadCommand();
+        InputContainer cmd = input_.ReadCommand(render_.TileSize());
         
-        if (cmd == Command::kQuit) {
+        if (cmd.command == Command::kQuit) {
             window_.close();
             break;
         }

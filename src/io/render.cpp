@@ -3,7 +3,6 @@
 Render::Render(sf::RenderWindow& window) : window_(window) {}
 
 void Render::Draw(const Game& game) {
-
     tile_size_ = std::min(window_.getSize().x, window_.getSize().y)
                 / std::min(game.Field().Height(), game.Field().Width());
             
@@ -15,10 +14,10 @@ void Render::Draw(const Game& game) {
         throw std::runtime_error("Tiles not loaded");
 
     window_.clear(sf::Color::Black);
-    DrawField(game.Field(), game.Player());
-    DrawPlayer(game.Player());
-    DrawEnemies(game.Robots(), game.Field(), game.Player());
-    DrawBuildings(game.Factories(), game.Field(), game.Player());
+    DrawField(game);
+    DrawPlayer(game);
+    DrawEnemies(game);
+    DrawBuildings(game);
 
     if(game.GameStatus() == Game::GameStatuses::kGameOver){
         DrawCenteredText("Game Over", sf::Color::Red);
@@ -26,10 +25,41 @@ void Render::Draw(const Game& game) {
         DrawCenteredText("Player Won", sf::Color::Green);
     }
     DrawUI(game);
+
+    if(game.InputStatus() == Game::InputStatuses::kWaitingForMouseToAbility) {
+        DrawAbilityRadius(game);
+    }
+
     window_.display();
 }
 
-void Render::DrawField(const GameField& field, const PlayerRobot& player) {
+void Render::DrawAbilityRadius(const Game &game) {
+    const GameField& field = game.Field();
+    const PlayerRobot& player = game.Player();
+    const int radius = (*game.GetAbility(player, game.LastAbility())).Radius();
+    for (int y = 0; y < field.Height(); ++y) {
+        for (int x = 0; x < field.Width(); ++x) { 
+            if(player.NowPosition().DistanceTo(x, y) <= radius) {
+                sf::RectangleShape fadetile({tile_size_ , tile_size_});
+                fadetile.setPosition(x * tile_size_, y * tile_size_);
+                fadetile.setFillColor(sf::Color(128, 128, 128, 128));
+                window_.draw(fadetile);
+            } else {
+                sf::RectangleShape fadetile({tile_size_ , tile_size_});
+                fadetile.setPosition(x * tile_size_, y * tile_size_);
+                fadetile.setFillColor(sf::Color(0, 0, 0, 128));
+                window_.draw(fadetile);
+            }
+        }
+    }
+}
+
+
+float Render::TileSize() const { return tile_size_; }
+
+void Render::DrawField(const Game &game) {
+    const GameField& field = game.Field();
+    const PlayerRobot& player = game.Player();
     for (int y = 0; y < field.Height(); ++y) {
         for (int x = 0; x < field.Width(); ++x) {
             sf::RectangleShape tile({tile_size_ - 1.f, tile_size_ - 1.f});
@@ -64,13 +94,15 @@ void Render::DrawField(const GameField& field, const PlayerRobot& player) {
                     fadetile.setFillColor(sf::Color(0, 0, 0, 128));
                     window_.draw(fadetile);
                 }
+                
 
             }
         }
     }
 }
 
-void Render::DrawPlayer(const PlayerRobot& player) {
+void Render::DrawPlayer(const Game &game) {
+    const PlayerRobot& player = game.Player();
     sf::CircleShape shape(tile_size_ / 2.f - 1.f);
     shape.setPosition(player.NowPosition().X() * tile_size_,
                       player.NowPosition().Y() * tile_size_);
@@ -78,7 +110,9 @@ void Render::DrawPlayer(const PlayerRobot& player) {
     window_.draw(shape);
 }
 
-void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& field, const PlayerRobot& player) {
+void Render::DrawEnemies(const Game &game) {
+    const std::list<EnemyRobot>& robots = game.Robots(); const GameField& field = game.Field();
+    const PlayerRobot& player = game.Player();
     for (const auto& r : robots) {
         if(field.GetCell(r.NowPosition()).IsVisited() || SHOW_NONVISITED_CELLS) {
             sf::CircleShape shape(tile_size_ / 2.f - 1.f);
@@ -94,7 +128,11 @@ void Render::DrawEnemies(const std::list<EnemyRobot>& robots, const GameField& f
     }
 }
 
-void Render::DrawBuildings(const std::list<RobotFactory>& factories, const GameField& field, const PlayerRobot& player) {
+void Render::DrawBuildings(const Game &game) {
+    const std::list<RobotFactory>& factories = game.Factories();
+    const GameField& field = game.Field();
+    const PlayerRobot& player = game.Player();
+
     for (const auto& b : factories) {
         Position pos = b.TopLeftPosition();
         for (int y = pos.Y(); y < pos.Y() + b.Size(); ++y) {

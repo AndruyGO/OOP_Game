@@ -99,6 +99,7 @@ Cell& GameField::GetCell(Position position) {
 }
 
 const Cell& GameField::GetCell(Position position) const {
+    if(!IsInside(position)) throw std::out_of_range("Cell coordinates out of bounds");
     return GetCell(position.X(), position.Y());
 }
 

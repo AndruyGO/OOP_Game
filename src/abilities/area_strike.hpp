@@ -22,8 +22,9 @@ public:
     void Upgrade(int level) override;
 
     int Damage() const;
-    void Use(Robot &owner, Game& game) override;
+    void Use(Robot &owner, Game& game, Position pos = Position(0, 0)) override;
     Ability::AbilityType GetAbilityType() override;
+    int Radius() const override;
 };
 
 

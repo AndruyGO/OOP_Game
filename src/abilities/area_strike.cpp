@@ -26,17 +26,25 @@ int AreaStrike::Damage() const { return damage_; }
 
 Ability::AbilityType AreaStrike::GetAbilityType() { return Ability::AbilityType::kAreaStrike; }
 
-void AreaStrike::Use(Robot &owner, Game& game) {
+void AreaStrike::Use(Robot &owner, Game& game, Position pos) {
     if (owner.NowEnergy() < EnergyCost()) return;
 
     owner.SetNowEnergy(owner.NowEnergy() - EnergyCost());
 
-    const Position &pos = owner.NowPosition();
-    for(int y = pos.Y() - radius_; y <= pos.Y()+radius_; y++) {
-    for(int x = pos.X() - radius_; x <= pos.X()+radius_; x++) {
-        if (pos.DistanceTo(x, y) <= radius_ && game.RobotOnPosition({x, y}) != nullptr){
-            game.InteractWithRobot(owner, *game.RobotOnPosition({x, y}));
+    const Position &owner_pos = owner.NowPosition();
+    for(int y = owner_pos.Y() - radius_; y <= owner_pos.Y()+radius_; y++) {
+    for(int x = owner_pos.X() - radius_; x <= owner_pos.X()+radius_; x++) {
+        if (owner_pos.DistanceTo(x, y) <= radius_) {
+            Robot *target_robot = game.RobotOnPosition({x, y});
+            RobotFactory *target_factory = game.FactoryOnPosition({x, y});
+
+            if(target_robot != nullptr) game.InteractWithRobot(owner, *target_robot);
+            if(target_factory != nullptr) game.InteractWithBuilding(owner, *target_factory);
         }
     }
     }
+}
+
+int AreaStrike::Radius() const {
+    return radius_;
 }

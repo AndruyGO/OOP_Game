@@ -17,6 +17,7 @@ public:
     void SetPosition(int x, int y);
     void SetPosition(Position position);
     double DistanceTo(int x, int y) const;
+    double DistanceTo(Position pos) const;
 
     Position Up();
     Position Down();
