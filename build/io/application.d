@@ -11,8 +11,9 @@ build/io/application.o: src/io/application.cpp src/io/application.hpp \
  src/io/../core/../abilities/../core/position.hpp \
  src/io/../core/../io/input_contaioner.hpp \
  src/io/../core/../io/../core/commands.hpp \
- src/io/../core/../io/../core/position.hpp src/io/render.hpp \
- src/io/input_system.hpp src/io/input_contaioner.hpp
+ src/io/../core/../io/../core/position.hpp src/io/gui.hpp \
+ src/io/input_system.hpp src/io/input_contaioner.hpp src/io/render.hpp \
+ src/io/button.hpp src/io/../core/position.hpp
 
 src/io/application.hpp:
 
@@ -50,8 +51,14 @@ src/io/../core/../io/../core/commands.hpp:
 
 src/io/../core/../io/../core/position.hpp:
 
-src/io/render.hpp:
+src/io/gui.hpp:
 
 src/io/input_system.hpp:
 
 src/io/input_contaioner.hpp:
+
+src/io/render.hpp:
+
+src/io/button.hpp:
+
+src/io/../core/position.hpp:

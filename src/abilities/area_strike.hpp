@@ -8,9 +8,9 @@ class Robot;
 class AreaStrike : public Ability {
 private:
     int level_;
+    int radius_;
     int energy_cost_;
     int damage_;
-    int radius_;
 
 public:
 
@@ -19,11 +19,11 @@ public:
     ~AreaStrike() = default;
 
     int EnergyCost() const override;
-    void Upgrade(int level) override;
+    void Upgrade() override;
 
     int Damage() const;
     void Use(Robot &owner, Game& game, Position pos = Position(0, 0)) override;
-    Ability::AbilityType GetAbilityType() override;
+    Ability::AbilityType GetAbilityType() const override;
     int Radius() const override;
 };
 

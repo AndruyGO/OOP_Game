@@ -4,22 +4,25 @@
 #include <utility>
 
 Application::Application(Game game)
-    : window_(sf::VideoMode(1100, 800), "Game",
+    :
+      window_(sf::VideoMode(1100, 800), "Game",
               sf::Style::Titlebar | sf::Style::Close),
       game_(std::move(game)),
-      render_(window_),
-      input_() {}
+      gui_(window_)
+              {
+                game_.SetInputStatus(Game::InputStatuses::kWaitingForRankUp);
+              }
 
 void Application::Run() {
-    while (window_.isOpen()) { /// or if the end
+    while (window_.isOpen()) {
         sf::Event event;
         while (window_.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window_.close();
-            input_.HandleEvent(event);
+            gui_.Input().HandleEvent(event);
         }
 
-        InputContainer cmd = input_.ReadCommand(render_.TileSize());
+        InputContainer cmd = gui_.GetCommand();
         
         if (cmd.command == Command::kQuit) {
             window_.close();
@@ -27,7 +30,6 @@ void Application::Run() {
         }
         
         if(game_.GameStatus() == Game::GameStatuses::kGameGoing) game_.Move(cmd);
-            
-        render_.Draw(game_);
+        gui_.Draw(game_);
     }
 }

@@ -28,7 +28,8 @@ public:
     };
     enum class InputStatuses {
         kStandard,
-        kWaitingForMouseToAbility
+        kWaitingForMouseToAbility,
+        kWaitingForRankUp
     };
 
     private:
@@ -65,6 +66,7 @@ public:
     Robot *RobotOnPosition(Position position);
     GameStatuses GameStatus() const;
     InputStatuses InputStatus() const;
+    void SetInputStatus(InputStatuses status);
     Ability::AbilityType LastAbility() const;
 
 
@@ -87,8 +89,10 @@ public:
     void AddAbility(Robot &robot, Ability::AbilityType ability_type);
     void UseAbility(Robot &robot, Ability::AbilityType ability_type, Position pos = {0, 0});
     bool CanRobotUseAbility(Robot &robot, Ability::AbilityType ability_type);
+    Ability *GetAbility(Robot &robot, Ability::AbilityType ability_type);
     const Ability *GetAbility(Robot &robot, Ability::AbilityType ability_type) const;
     const Ability *GetAbility(const Robot &robot, Ability::AbilityType ability_type) const;
+    void RankUp();
     
 };
 

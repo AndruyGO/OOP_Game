@@ -52,3 +52,7 @@ InputContainer InputSystem::ReadCommand(float tile_size) {
 bool InputSystem::HasCommand() const {
     return pending_.command != Command::kNone;
 }
+
+const Position InputSystem::MousePosition() const {
+    return mouse_position_;
+}
