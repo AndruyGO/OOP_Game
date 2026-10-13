@@ -22,6 +22,9 @@ void Teleport::Upgrade() {
     energy_cost_ = std::max(20, energy_cost_ - 10);
 }
 
+
+int Teleport::Level() const { return level_; }
+
 Ability::AbilityType Teleport::GetAbilityType() const { return Ability::AbilityType::kTeleport; }
 
 void Teleport::Use(Robot &owner, Game& game, Position pos) {

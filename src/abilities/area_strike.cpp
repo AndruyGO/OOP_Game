@@ -23,6 +23,8 @@ void AreaStrike::Upgrade() {
     level_++;
 }
 
+int AreaStrike::Level() const { return level_; }
+
 int AreaStrike::Damage() const { return damage_; }
 
 Ability::AbilityType AreaStrike::GetAbilityType() const { return Ability::AbilityType::kAreaStrike; }

@@ -23,6 +23,8 @@ void FarHit::Upgrade() {
     level_++;
 }
 
+int FarHit::Level() const { return level_; }
+
 Ability::AbilityType FarHit::GetAbilityType() const { return Ability::AbilityType::kFarHit; }
 
 void FarHit::Use(Robot &owner, Game& game, Position pos) {

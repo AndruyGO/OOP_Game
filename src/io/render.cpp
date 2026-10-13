@@ -1,17 +1,22 @@
 #include "render.hpp"
 
-Render::Render(sf::RenderWindow& window) : window_(window) {}
+Render::Render(sf::RenderWindow& window) : window_(window) {
 
-void Render::Draw(const Game& game) {
-    tile_size_ = std::min(window_.getSize().x, window_.getSize().y)
-                / std::min(game.Field().Height(), game.Field().Width());
-            
     if (!font_.loadFromFile("../assets/font.ttf"))
         throw std::runtime_error("Font not loaded");
     if (!tiles_texture_.loadFromFile("../assets/tiles.png"))
         throw std::runtime_error("Tiles not loaded");
     if(!robot_factory_.loadFromFile("../assets/robot_factory.png"))
         throw std::runtime_error("Tiles not loaded");
+    if(!abilities_texture_.loadFromFile("../assets/abilities_texture.png"))
+        throw std::runtime_error("Icons not loaded");
+}
+
+void Render::Draw(const Game& game) {
+    tile_size_ = std::min(window_.getSize().x, window_.getSize().y)
+                / std::min(game.Field().Height(), game.Field().Width());
+            
+    
 
     window_.clear(sf::Color::Black);
     DrawField(game);
@@ -233,43 +238,68 @@ void Render::DrawAbilityCard(Position pos, int W, int H, int F, Ability::Ability
 
     const Ability *obj_ability = game.GetAbility(game.Player(), ability);
     std::string title;
+    int t;
+    sf::Sprite tile(abilities_texture_);
     
+
     switch(ability) {
         case Ability::AbilityType::kAreaStrike:
             title = "Area Strike";
+            t = 0;
             break;
         case Ability::AbilityType::kFarHit:
             title = "Far Hit";
+            t = 1;
             break;
         case Ability::AbilityType::kHeal:
             title = "Heal";
+            t = 2;
             break;
         case Ability::AbilityType::kTeleport:
             title = "Teleport";
+            t = 3;
             break;
     }
+    tile.setTextureRect(sf::IntRect(
+        t*32,   // x в атласе
+        0,      // y в атласе
+        32,     // ширина
+        32      // высота
+    ));
+
+    tile.setPosition(pos.X()+F/2, pos.Y()+F+40);
+    float scale = (W+2*F)/32;
+    tile.setScale(scale, scale);
+    
+    
 
     std::string description;
+    int level;
     if(obj_ability == nullptr) {
         description = "Unlock";
+        level = 0;
         
     } else {
+        level = obj_ability->Level();
         switch(obj_ability->GetAbilityType()) {
             case Ability::AbilityType::kAreaStrike:
+                description = "Increase damage"; break;
             case Ability::AbilityType::kFarHit:
+                description = "Increase radius"; break;
             case Ability::AbilityType::kTeleport:
-                description = "Increase radius";
-                break;
+                description = "Reduce energy\ncost"; break;
             case Ability::AbilityType::kHeal:
-                description = "Increase Heal\nAmmmount";
+                description = "Increase Heal\nAmount";
                 break;
         }
     }
     
     window_.draw(card_bg_frame);
     window_.draw(card_bg);
+    window_.draw(tile);
     DrawText({pos.X()+W/2, pos.Y()+30}, title, 25, sf::Color::White);
-    DrawText({pos.X()+W/2, pos.Y()+200}, description, 20, sf::Color::White);
+    DrawText({pos.X()+W/2, pos.Y()+280}, description, 20, sf::Color::White);
+    DrawText({pos.X()+W/2, pos.Y()+340}, "Level " + std::to_string(level+1), 20, sf::Color::White);
 
     if(is_fade) {
         sf::RectangleShape card_fade({W+2*F, H+2*F});

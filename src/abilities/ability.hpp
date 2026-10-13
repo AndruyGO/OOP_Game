@@ -23,6 +23,7 @@ public:
     virtual void Use(Robot &owner, Game& game, Position pos) = 0;
     virtual AbilityType GetAbilityType() const = 0;
     virtual int Radius() const = 0;
+    virtual int Level() const = 0;
 };
 
 

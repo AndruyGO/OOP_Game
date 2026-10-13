@@ -17,6 +17,8 @@ int Heal::EnergyCost() const {
     return energy_cost_;
 }
 
+int Heal::Level() const { return level_; }
+
 void Heal::Upgrade() {
     level_++;
     energy_cost_ = (level_)*50;

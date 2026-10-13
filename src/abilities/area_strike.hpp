@@ -25,6 +25,7 @@ public:
     void Use(Robot &owner, Game& game, Position pos = Position(0, 0)) override;
     Ability::AbilityType GetAbilityType() const override;
     int Radius() const override;
+    int Level() const override;
 };
 
 

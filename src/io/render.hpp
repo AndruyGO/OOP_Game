@@ -40,6 +40,7 @@ public:
     float tile_size_;
     sf::Texture tiles_texture_;
     sf::Texture robot_factory_;
+    sf::Texture abilities_texture_;
     sf::RenderWindow& window_;
     sf::Font font_;
 };

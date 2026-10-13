@@ -12,21 +12,23 @@
 class GUI {
 private:
     sf::RenderWindow &window_;
+    Game& game_;
     Render render_;
     InputSystem input_system_;
     std::list<Button> buttons_;
+    
 
-    void UpdateButtonsFade();
-    void AddRankUpButtons(Game& game);
-    void RemoveRankUpButtons(Game& game);
+    void UpdateButtonsFade(Game::InputStatuses input_status_);
+    void AddRankUpButtons();
+    void RemoveRankUpButtons();
 public:
     
-    GUI(sf::RenderWindow &window);
+    GUI(sf::RenderWindow &window, Game& game);
 
     InputSystem& Input();
     Render& Renderer();
 
-    void Draw(Game& game);
+    void Draw();
     InputContainer GetCommand();
 
 
