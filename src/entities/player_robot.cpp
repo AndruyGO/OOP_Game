@@ -63,3 +63,6 @@ void PlayerRobot::RankUp () {
     }
 }
 
+bool PlayerRobot::IsEnoughXP() const {
+    return now_xp_ >= xp_required;
+}

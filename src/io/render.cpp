@@ -29,8 +29,7 @@ void Render::Draw(const Game& game) {
     if(game.InputStatus() == Game::InputStatuses::kWaitingForMouseToAbility) {
         DrawAbilityRadius(game);
     }
-
-    window_.display();
+    //DrawAbilityCard({100,100}, Ability::AbilityType::kHeal, game);
 }
 
 void Render::DrawAbilityRadius(const Game &game) {
@@ -185,7 +184,7 @@ void Render::DrawText(Position pos, const std::string &str, int size, sf::Color 
     sf::Text text(str, font_, size);
     sf::FloatRect b = text.getLocalBounds();
     text.setOrigin(b.left + b.width / 2.f, b.top + b.height / 2.f);
-    text.setPosition(pos.X()+100, pos.Y()+25);
+    text.setPosition(pos.X(), pos.Y());
     text.setFillColor(color);
 
     window_.draw(text);
@@ -204,7 +203,7 @@ void Render::DrawBar(Position pos, double now, double max, sf::Color bar_color, 
     
     window_.draw(fill_bar);
     window_.draw(bar);
-    DrawText(pos, std::to_string((int)now)+" / "+std::to_string((int)max), 20, text_color);
+    DrawText({pos.X()+100, pos.Y()+25}, std::to_string((int)now)+" / "+std::to_string((int)max), 20, text_color);
 }
 
 void Render::DrawUI(const Game& game) {
@@ -218,6 +217,66 @@ void Render::DrawUI(const Game& game) {
     const PlayerRobot &player = game.Player();
     DrawBar({window_.getSize().y + 30, 100}, player.NowHealth(), player.MaxHealth(), sf::Color::Red, sf::Color::White);
     DrawBar({window_.getSize().y + 30, 200}, player.NowEnergy(), player.MaxEnergy(), sf::Color::Green, sf::Color(50, 50, 50));
-    DrawText({window_.getSize().y, 300}, "Rank : "+std::to_string((int)player.Rank()), 20, sf::Color::White);
+    DrawText({window_.getSize().y + 100, 325}, "Rank : "+std::to_string((int)player.Rank()), 20, sf::Color::White);
 
 }
+
+
+void Render::DrawAbilityCard(Position pos, int W, int H, int F, Ability::AbilityType ability, const Game &game, bool is_fade, sf::Color bg_color) {
+    sf::RectangleShape card_bg_frame({W+2*F, H+2*F});
+    card_bg_frame.setPosition(pos.X()-F, pos.Y()-F);
+    card_bg_frame.setFillColor(sf::Color(bg_color.r-10, bg_color.g-10, bg_color.b-10));
+
+    sf::RectangleShape card_bg({W, H});
+    card_bg.setPosition(pos.X(), pos.Y());
+    card_bg.setFillColor(bg_color);
+
+    const Ability *obj_ability = game.GetAbility(game.Player(), ability);
+    std::string title;
+    
+    switch(ability) {
+        case Ability::AbilityType::kAreaStrike:
+            title = "Area Strike";
+            break;
+        case Ability::AbilityType::kFarHit:
+            title = "Far Hit";
+            break;
+        case Ability::AbilityType::kHeal:
+            title = "Heal";
+            break;
+        case Ability::AbilityType::kTeleport:
+            title = "Teleport";
+            break;
+    }
+
+    std::string description;
+    if(obj_ability == nullptr) {
+        description = "Unlock";
+        
+    } else {
+        switch(obj_ability->GetAbilityType()) {
+            case Ability::AbilityType::kAreaStrike:
+            case Ability::AbilityType::kFarHit:
+            case Ability::AbilityType::kTeleport:
+                description = "Increase radius";
+                break;
+            case Ability::AbilityType::kHeal:
+                description = "Increase Heal\nAmmmount";
+                break;
+        }
+    }
+    
+    window_.draw(card_bg_frame);
+    window_.draw(card_bg);
+    DrawText({pos.X()+W/2, pos.Y()+30}, title, 25, sf::Color::White);
+    DrawText({pos.X()+W/2, pos.Y()+200}, description, 20, sf::Color::White);
+
+    if(is_fade) {
+        sf::RectangleShape card_fade({W+2*F, H+2*F});
+        card_fade.setPosition(pos.X()-F, pos.Y()-F);
+        card_fade.setFillColor(sf::Color(10, 10, 10, 128));
+        window_.draw(card_fade);
+    }
+}
+
+void Render::Flush() { window_.display(); }

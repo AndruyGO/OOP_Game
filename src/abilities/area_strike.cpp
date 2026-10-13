@@ -18,13 +18,14 @@ int AreaStrike::EnergyCost() const {
     return energy_cost_;
 }
 
-void AreaStrike::Upgrade(int level) {
-
+void AreaStrike::Upgrade() {
+    radius_ += 1;
+    level_++;
 }
 
 int AreaStrike::Damage() const { return damage_; }
 
-Ability::AbilityType AreaStrike::GetAbilityType() { return Ability::AbilityType::kAreaStrike; }
+Ability::AbilityType AreaStrike::GetAbilityType() const { return Ability::AbilityType::kAreaStrike; }
 
 void AreaStrike::Use(Robot &owner, Game& game, Position pos) {
     if (owner.NowEnergy() < EnergyCost()) return;

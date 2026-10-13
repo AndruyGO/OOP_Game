@@ -19,9 +19,9 @@ public:
 
     virtual ~Ability() = default;
     virtual int EnergyCost() const = 0;
-    virtual void Upgrade(int level) = 0;
+    virtual void Upgrade() = 0;
     virtual void Use(Robot &owner, Game& game, Position pos) = 0;
-    virtual AbilityType GetAbilityType() = 0;
+    virtual AbilityType GetAbilityType() const = 0;
     virtual int Radius() const = 0;
 };
 

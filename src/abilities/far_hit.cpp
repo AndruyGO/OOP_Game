@@ -18,11 +18,12 @@ int FarHit::EnergyCost() const {
     return energy_cost_;
 }
 
-void FarHit::Upgrade(int level) {
-
+void FarHit::Upgrade() {
+    radius_++;
+    level_++;
 }
 
-Ability::AbilityType FarHit::GetAbilityType() { return Ability::AbilityType::kFarHit; }
+Ability::AbilityType FarHit::GetAbilityType() const { return Ability::AbilityType::kFarHit; }
 
 void FarHit::Use(Robot &owner, Game& game, Position pos) {
     if (owner.NowEnergy() < EnergyCost()) return;

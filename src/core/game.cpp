@@ -92,8 +92,10 @@ bool Game::ProcessPlayerCommans(InputContainer cmd) {
             break;
         case Command::kNone:
             break;
-        case Command::kUseAreaStrike: case Command::kUseHeal:
+        case Command::kUseAreaStrike:
             UseAbility(player_robot_, Ability::AbilityType::kAreaStrike); break;
+        case Command::kUseHeal: 
+            UseAbility(player_robot_, Ability::AbilityType::kHeal); break;
         case Command::kUseFarHit:
             if(!CanRobotUseAbility(player_robot_, Ability::AbilityType::kFarHit)) break;
             last_ability_ = Ability::AbilityType::kFarHit;
@@ -117,7 +119,7 @@ bool Game::ProcessPlayerCommans(InputContainer cmd) {
     if(player_robot_.MovesRemain() == 0) SwitchMove();
     return is_executed;
 
-    } else {
+    } else if(InputStatus() == Game::InputStatuses::kWaitingForMouseToAbility) {
         if(cmd.command == Command::kSelectTarget) {
             UseAbility(player_robot_, last_ability_, cmd.field_mouse_position);
             input_status_ = Game::InputStatuses::kStandard;
@@ -128,6 +130,8 @@ bool Game::ProcessPlayerCommans(InputContainer cmd) {
             input_status_ = Game::InputStatuses::kStandard;
             return true;
         }
+    } else if(InputStatus() == Game::InputStatuses::kWaitingForRankUp) {
+        // do nothing
     }
 
 
@@ -200,8 +204,8 @@ void Game::InteractWithBuilding(Robot &actor, Building &target) {
         target.Hit(actor.Damage());
         if(target.NowHealth() <= 0) {
             if(actor.Id() == player_robot_.Id()){
-                player_robot_.AddNowXP(25);
-                player_robot_.RankUp();
+                player_robot_.AddNowXP(50);
+                RankUp();
             }
             Kill(&target);
         }
@@ -214,8 +218,8 @@ void Game::InteractWithRobot(Robot &actor, Robot &target) {
         target.Hit(actor.Damage());
         if(target.NowHealth() <= 0) {
             if(actor.Id() == player_robot_.Id()){
-                player_robot_.AddNowXP(50);
-                player_robot_.RankUp();
+                player_robot_.AddNowXP(25);
+                RankUp();
             }
             Kill(&target);
         }
@@ -314,6 +318,9 @@ Game::GameStatuses Game::GameStatus() const {
 Game::InputStatuses Game::InputStatus() const {
     return input_status_;
 }
+void Game::SetInputStatus(InputStatuses status) {
+    input_status_ = status;
+}
 
 
 
@@ -347,19 +354,24 @@ bool Game::SpawnRobot(EnemyRobot robot, Position pos) {
 
 
 void Game::AddAbility(Robot &robot, Ability::AbilityType ability_type) {
-    switch(ability_type){
-        case Ability::AbilityType::kAreaStrike:
-            robot.Abilities().push_back( new AreaStrike(1) );
-            break;
-        case Ability::AbilityType::kHeal:
-            robot.Abilities().push_back( new Heal(1) );
-            break;
-        case Ability::AbilityType::kFarHit:
-            robot.Abilities().push_back( new FarHit(1) );
-            break;
-        case Ability::AbilityType::kTeleport:
-            robot.Abilities().push_back( new Teleport(1) );
-            break;
+    Ability *current_ability = GetAbility(robot, ability_type);
+    if(current_ability == nullptr) {
+        switch(ability_type){
+            case Ability::AbilityType::kAreaStrike:
+                robot.Abilities().push_back( new AreaStrike(1) );
+                break;
+            case Ability::AbilityType::kHeal:
+                robot.Abilities().push_back( new Heal(1) );
+                break;
+            case Ability::AbilityType::kFarHit:
+                robot.Abilities().push_back( new FarHit(1) );
+                break;
+            case Ability::AbilityType::kTeleport:
+                robot.Abilities().push_back( new Teleport(1) );
+                break;
+        }
+    } else {
+        current_ability->Upgrade();
     }
 }
 
@@ -381,6 +393,9 @@ void Game::UseAbility(Robot &robot, Ability::AbilityType ability_type, Position 
         }
     }
 }
+
+
+
 const Ability *Game::GetAbility(Robot &robot, Ability::AbilityType ability_type) const {
     return GetAbility(robot, ability_type);
 }
@@ -392,4 +407,21 @@ const Ability *Game::GetAbility(const Robot &robot, Ability::AbilityType ability
         }
     }
     return nullptr;
+}
+Ability *Game::GetAbility(Robot &robot, Ability::AbilityType ability_type) {
+    for(auto &ability : robot.Abilities()) {
+        if (ability->GetAbilityType() == ability_type) {
+            return ability;
+        }
+    }
+    return nullptr;
+}
+
+void Game::RankUp() {
+    if(!player_robot_.IsEnoughXP()) return;
+    
+    while(player_robot_.IsEnoughXP()) {
+        SetInputStatus(InputStatuses::kWaitingForRankUp);
+        player_robot_.RankUp();
+    }
 }

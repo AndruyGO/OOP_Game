@@ -50,10 +50,10 @@ int main() {
 
     
     Game game(field, std::move(player), std::move(enemies), std::move(factories));
-    game.AddAbility(game.Player(), Ability::AbilityType::kAreaStrike);
-    game.AddAbility(game.Player(), Ability::AbilityType::kHeal);
-    game.AddAbility(game.Player(), Ability::AbilityType::kFarHit);
-    game.AddAbility(game.Player(), Ability::AbilityType::kTeleport);
+    //game.AddAbility(game.Player(), Ability::AbilityType::kAreaStrike);
+    //game.AddAbility(game.Player(), Ability::AbilityType::kHeal);
+    //game.AddAbility(game.Player(), Ability::AbilityType::kFarHit);
+    //game.AddAbility(game.Player(), Ability::AbilityType::kTeleport);
     Application app(std::move(game));
     app.Run();
     return 0;

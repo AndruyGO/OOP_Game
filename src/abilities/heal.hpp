@@ -18,11 +18,11 @@ public:
     ~Heal() = default;
 
     int EnergyCost() const override;
-    void Upgrade(int level) override;
+    void Upgrade() override;
 
     int HealAmount() const;
     void Use(Robot &owner, Game& game, Position pos = Position(0, 0)) override;
-    Ability::AbilityType GetAbilityType() override;
+    Ability::AbilityType GetAbilityType() const override;
     int Radius() const override;
 };
 

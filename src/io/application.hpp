@@ -4,8 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "../core/game.hpp"
-#include "render.hpp"
-#include "input_system.hpp"
+#include "gui.hpp"
 
 class Application {
 public:
@@ -17,8 +16,7 @@ public:
 private:
     sf::RenderWindow window_;
     Game game_;
-    Render render_;
-    InputSystem input_;
+    GUI gui_;
 };
 
 

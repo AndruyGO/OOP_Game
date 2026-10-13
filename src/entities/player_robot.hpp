@@ -22,6 +22,7 @@ public:
     int Rank() const;
     int NowXp() const;
     int XpRequired() const;
+    bool IsEnoughXP() const;
     int VisibilityRadius() const;
 
     void SetNowXP(int value);

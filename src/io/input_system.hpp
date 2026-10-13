@@ -13,6 +13,7 @@ public:
     void HandleEvent(const sf::Event& event);
     InputContainer ReadCommand(float tile_size);
     bool HasCommand() const;
+    const Position MousePosition() const;
 
 private:
     InputContainer pending_;

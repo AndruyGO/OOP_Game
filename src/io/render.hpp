@@ -18,8 +18,7 @@ public:
     void Draw(const Game& game);
     
     
-private:
-    float tile_size_;
+    
     
     void DrawField(const Game& game);
     void DrawPlayer(const Game& game);
@@ -31,13 +30,14 @@ private:
     
     void DrawCenteredText(const std::string& str, sf::Color color);
     void DrawAbilityRadius(const Game &game);
-    
-    public:
+    void DrawAbilityCard(Position pos, int W, int H, int F, Ability::AbilityType ability, const Game &game,
+         bool is_fade = 0, sf::Color bg_color = sf::Color(88, 47, 14));
     float TileSize() const;
-    
+    void Flush();
     
     
     private:
+    float tile_size_;
     sf::Texture tiles_texture_;
     sf::Texture robot_factory_;
     sf::RenderWindow& window_;
