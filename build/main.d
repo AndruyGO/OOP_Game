@@ -13,10 +13,10 @@ build/main.o: src/main.cpp src/io/application.hpp src/io/../core/game.hpp \
  src/io/../core/../io/../core/commands.hpp \
  src/io/../core/../io/../core/position.hpp src/io/gui.hpp \
  src/io/input_system.hpp src/io/input_contaioner.hpp src/io/render.hpp \
- src/io/button.hpp src/io/../core/position.hpp src/core/game.hpp \
- src/core/game_field.hpp src/entities/player_robot.hpp \
- src/entities/enemy_robot.hpp src/abilities/area_strike.hpp \
- src/abilities/ability.hpp
+ src/io/button.hpp src/io/../core/commands.hpp \
+ src/io/../core/position.hpp src/core/game.hpp src/core/game_field.hpp \
+ src/entities/player_robot.hpp src/entities/enemy_robot.hpp \
+ src/abilities/area_strike.hpp src/abilities/ability.hpp
 
 src/io/application.hpp:
 
@@ -63,6 +63,8 @@ src/io/input_contaioner.hpp:
 src/io/render.hpp:
 
 src/io/button.hpp:
+
+src/io/../core/commands.hpp:
 
 src/io/../core/position.hpp:
 

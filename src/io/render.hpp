@@ -33,10 +33,14 @@ public:
     void DrawAbilityCard(Position pos, int W, int H, int F, Ability::AbilityType ability, const Game &game,
          bool is_fade = 0, sf::Color bg_color = sf::Color(88, 47, 14));
     float TileSize() const;
+    
+    void DrawAbilityButton(Position pos, float scale, Ability::AbilityType ability, bool is_fade = 0);
+    
     void Flush();
     
+
     
-    private:
+private:
     float tile_size_;
     sf::Texture tiles_texture_;
     sf::Texture robot_factory_;

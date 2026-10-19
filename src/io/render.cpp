@@ -1,5 +1,5 @@
 #include "render.hpp"
-
+#include <iostream>
 Render::Render(sf::RenderWindow& window) : window_(window) {
 
     if (!font_.loadFromFile("../assets/font.ttf"))
@@ -307,6 +307,45 @@ void Render::DrawAbilityCard(Position pos, int W, int H, int F, Ability::Ability
         card_fade.setFillColor(sf::Color(10, 10, 10, 128));
         window_.draw(card_fade);
     }
+}
+
+void Render::DrawAbilityButton(Position pos, float scale, Ability::AbilityType ability, bool is_fade) {
+    sf::Sprite tile(abilities_texture_);
+    
+    int t;
+    switch(ability) {
+        case Ability::AbilityType::kAreaStrike:
+            t = 0;
+            break;
+        case Ability::AbilityType::kFarHit:
+            t = 1;
+            break;
+        case Ability::AbilityType::kHeal:
+            t = 2;
+            break;
+        case Ability::AbilityType::kTeleport:
+            t = 3;
+            break;
+    }
+    tile.setTextureRect(sf::IntRect(
+        t*32,   // x в атласе
+        0,      // y в атласе
+        32,     // ширина
+        32      // высота
+    ));
+
+    tile.setPosition(pos.X(), pos.Y());
+    tile.setScale(scale, scale);
+
+    window_.draw(tile);
+
+    if(is_fade) {
+        sf::RectangleShape card_fade({32*scale, 32*scale});
+        card_fade.setPosition(pos.X(), pos.Y());
+        card_fade.setFillColor(sf::Color(10, 10, 10, 128));
+        window_.draw(card_fade);
+    }
+
 }
 
 void Render::Flush() { window_.display(); }

@@ -1,7 +1,7 @@
 #include "button.hpp"
 
 Button::Button(int width, int height, Position position,  ButtonTypes type,
-    std::function<void()> on_click, std::function<void()> render_button)
+    std::function<void()> on_click, std::function<void()> render_button, std::function<void()> update_fade)
     : is_fade(0), width_(width), height_(height), position_(position), type_(type)
     {
         SetOnClick(on_click);
@@ -25,7 +25,7 @@ void Button::SetOnClick(std::function<void()> callback) {
     on_click_ = std::move(callback);
 }
 
-void Button::OnClick() {
+Command Button::OnClick() {
     if (on_click_) on_click_();
 }
 
@@ -37,3 +37,14 @@ void Button::RenderButton() {
 }
 
 const Button::ButtonTypes Button::Type() const { return type_; }
+
+
+void Button::SetFadeUpdate(std::function<void()> callback) {
+    update_fade_ = std::move(callback);
+}
+
+bool Button::Fade() {
+    update_fade_();
+
+    return is_fade;
+}

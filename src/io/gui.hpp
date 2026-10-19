@@ -18,7 +18,7 @@ private:
     std::list<Button> buttons_;
     
 
-    void UpdateButtonsFade(Game::InputStatuses input_status_);
+    void UpdateButtonsFade();
     void AddRankUpButtons();
     void RemoveRankUpButtons();
 public:
