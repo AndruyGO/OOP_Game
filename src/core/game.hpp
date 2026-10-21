@@ -9,6 +9,7 @@
 #include "direction.hpp"
 #include "../abilities/ability.hpp"
 #include "../io/input_contaioner.hpp"
+#include "../statuses/all_statuses.hpp"
 #include <vector>
 #include <list>
 
@@ -92,8 +93,17 @@ public:
     Ability *GetAbility(Robot &robot, Ability::AbilityType ability_type);
     const Ability *GetAbility(Robot &robot, Ability::AbilityType ability_type) const;
     const Ability *GetAbility(const Robot &robot, Ability::AbilityType ability_type) const;
+
+    Status *GetStatus(Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group = Status::StatusGroup::kNone);
+    const Status *GetStatus(Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group = Status::StatusGroup::kNone) const;
+    const Status *GetStatus(const Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group = Status::StatusGroup::kNone) const;
+
     void RankUp();
     
+    void AddStatus(Robot &robot, Status::StatusType status_type);
+    void AddStatus(Robot &robot, Status *new_status);
+    void ApplyStatuses(Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group = Status::StatusGroup::kNone);
+    void RemoveEmptyStatuses(Robot &robot);
 };
 
 #endif

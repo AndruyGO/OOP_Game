@@ -34,9 +34,9 @@ int main() {
      
     
 
-    GameField field(type_map, movement_costs_map, Position(2, 2));
+    GameField field(type_map, movement_costs_map, Position(2, 2), 1);
     field.AddFrame();
-    PlayerRobot player(1, 100, 100, 50, 1, 1, 1, 3);
+    PlayerRobot player(1, 100, 100, 50, 1, 3, 1, 3);
     player.SetPosition(field.PlayerStartPosition());
 
     std::vector<EnemyRobot> enemies;

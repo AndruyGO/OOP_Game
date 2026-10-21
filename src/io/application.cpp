@@ -14,6 +14,8 @@ Application::Application(Game game)
               }
 
 void Application::Run() {
+
+    
     while (window_.isOpen()) {
         sf::Event event;
         while (window_.pollEvent(event)) {

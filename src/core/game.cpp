@@ -28,7 +28,7 @@ Game::Game(GameField game_field,
 
         game_field_.OpenCells(game_field_.PlayerStartPosition(), 
                               player_robot_.VisibilityRadius());
-
+        ApplyStatuses(player_robot_, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
         player_robot_.SetPosition(game_field_.PlayerStartPosition());
 
         max_id_ = std::max(max_id_, player_robot.Id());
@@ -43,13 +43,19 @@ Game::Game(GameField game_field,
 
 
 void Game::Move(InputContainer cmd) {
-    
+    if(player_robot_.NowHealth() <= 0) {
+        SetGameStatus(Game::GameStatuses::kGameOver);
+        return;
+    }
+
     if(GameStatus() == Game::GameStatuses::kGameGoing) {
         if(IsPlayersMove()){
             if(cmd.command == Command::kNone) return;
             ProcessPlayerCommans(cmd); 
         } else {
+            ApplyStatuses(player_robot_, Status::StatusType::kNone, Status::StatusGroup::kAfterMove);
             RobotsMove();
+            ApplyStatuses(player_robot_, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
         }
     }
 }
@@ -171,6 +177,7 @@ bool Game::TryMove(Robot &robot, Position next_position) {
         auto another_robot = RobotOnPosition(next_position);
         if(another_robot == nullptr && factory == nullptr){
             robot.SetPosition(next_position);
+            AddStatus(robot, game_field_.GetCell(next_position).TakeRandomStatus());
         }else if(another_robot != nullptr){
             InteractWithRobot(robot, *another_robot);
         }else if(factory != nullptr) {
@@ -216,6 +223,9 @@ void Game::InteractWithRobot(Robot &actor, Robot &target) {
         target.Heal(actor.kHealAmount);
     }else{
         target.Hit(actor.Damage());
+        if(GetStatus(target, Status::StatusType::kShield) != nullptr) {
+            GetStatus(target, Status::StatusType::kShield)->DoAction(target);
+        }
         if(target.NowHealth() <= 0) {
             if(actor.Id() == player_robot_.Id()){
                 player_robot_.AddNowXP(25);
@@ -265,6 +275,15 @@ bool Game::IsWin() const {
 
 
 void Game::RobotMove(EnemyRobot& robot) {
+    ApplyStatuses(robot, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
+    if(robot.NowHealth() <= 0) {
+        if(!robot.IsFriendly()) {
+            Player().AddNowXP(25);
+            RankUp();
+        }
+        Kill(&robot);
+        return;
+    }
     static std::mt19937 rng(std::random_device{}());
 
     std::vector<Position> allowed_positions;
@@ -287,6 +306,8 @@ void Game::RobotMove(EnemyRobot& robot) {
     std::uniform_int_distribution<int> dist(0, allowed_positions.size() - 1);
     TryMove(robot, allowed_positions[dist(rng)]);
     robot.ReduceMovesRemain(game_field_.GetCell(allowed_positions[dist(rng)]).MovementCost());
+
+    ApplyStatuses(robot, Status::StatusType::kNone, Status::StatusGroup::kAfterMove);
 }
 
 void Game::RobotsMove() {
@@ -376,6 +397,8 @@ void Game::AddAbility(Robot &robot, Ability::AbilityType ability_type) {
 }
 
 bool Game::CanRobotUseAbility(Robot &robot, Ability::AbilityType ability_type) {
+    if(GetStatus(robot, Status::StatusType::kOverload) != nullptr) return false;
+
     for(auto &ability : robot.Abilities()) {
         if (ability->GetAbilityType() == ability_type) {
             if(ability->EnergyCost() <= robot.NowEnergy()) return true;
@@ -386,6 +409,8 @@ bool Game::CanRobotUseAbility(Robot &robot, Ability::AbilityType ability_type) {
 }
 
 void Game::UseAbility(Robot &robot, Ability::AbilityType ability_type, Position pos) {
+    if(GetStatus(robot, Status::StatusType::kOverload) != nullptr) return;
+
     for(auto &ability : robot.Abilities()) {
         if (ability->GetAbilityType() == ability_type) {
             ability->Use(robot, *this, pos);
@@ -425,3 +450,77 @@ void Game::RankUp() {
         player_robot_.RankUp();
     }
 }
+
+
+
+Status* Game::GetStatus(Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group) {
+    for(auto& status : robot.Statuses()) {
+        if((status->GetStatusType() == status_type || 
+        status_type == Status::StatusType::kNone ) &&
+        (status->GetStatusGroup() == status_group || 
+        status_group == Status::StatusGroup::kNone)) {
+            return status;
+        }  
+    }
+    return nullptr;
+}
+
+const Status* Game::GetStatus(Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group) const {
+    return GetStatus(robot, status_type, status_group);
+}
+const Status* Game::GetStatus(const Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group) const {
+    return GetStatus(robot, status_type, status_group);
+}
+
+void Game::AddStatus(Robot &robot, Status *new_status) {
+    if(new_status == nullptr) return;
+    Status *old_status = GetStatus(robot, new_status->GetStatusType());
+    if(old_status == nullptr) {
+        robot.Statuses().push_back(new_status);
+    } else {
+        old_status->AddToCount(new_status->Count());
+        delete new_status;
+        new_status = nullptr;
+    }
+    return;
+}
+
+void Game::AddStatus(Robot &robot, Status::StatusType status_type) {
+    Status *status = GetStatus(robot, status_type);
+    if(status == nullptr) { 
+        switch (status_type) {
+            case Status::StatusType::kBurning:  robot.Statuses().push_back(new Burning()); break;
+            case Status::StatusType::kOverload: robot.Statuses().push_back(new Overload()); break;
+            case Status::StatusType::kShield:   robot.Statuses().push_back(new Shield()); break;
+            case Status::StatusType::kSlowness: robot.Statuses().push_back(new Slowness()); break;
+        }
+    } else {
+        status->AddToCount(1);
+    }
+}
+
+void Game::ApplyStatuses(Robot &robot, Status::StatusType status_type, Status::StatusGroup status_group) {
+    for(auto& status : robot.Statuses()) {
+        if((status->GetStatusType() == status_type || 
+        status_type == Status::StatusType::kNone ) &&
+        (status->GetStatusGroup() == status_group || 
+        status_group == Status::StatusGroup::kNone)) {
+            status->DoAction(robot);
+        }  
+    }
+    RemoveEmptyStatuses(robot);
+}
+
+void Game::RemoveEmptyStatuses(Robot &robot) {
+    auto& list = robot.Statuses();
+    for (auto it = list.begin(); it != list.end(); ) {
+        if ((*it)->Count() == 0) {
+            delete *it;
+            it = list.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+

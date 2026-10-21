@@ -133,3 +133,11 @@ std::list<Ability*>& Robot::Abilities() {
 const std::list<Ability*>& Robot::Abilities() const {
     return abilities_;
 }
+
+std::list<Status*>& Robot::Statuses() {
+    return statuses_;
+}
+
+const std::list<Status*>& Robot::Statuses() const {
+    return statuses_;
+}

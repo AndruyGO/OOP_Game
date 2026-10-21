@@ -1,6 +1,12 @@
 build/entities/robot.o: src/entities/robot.cpp src/entities/robot.hpp \
  src/entities/../core/position.hpp src/entities/../core/direction.hpp \
- src/entities/enemy_robot.hpp src/entities/../abilities/ability.hpp \
+ src/entities/../statuses/all_statuses.hpp \
+ src/entities/../statuses/status.hpp \
+ src/entities/../statuses/slowness.hpp \
+ src/entities/../statuses/burning.hpp \
+ src/entities/../statuses/overload.hpp \
+ src/entities/../statuses/shield.hpp src/entities/enemy_robot.hpp \
+ src/entities/../abilities/ability.hpp \
  src/entities/../abilities/../core/position.hpp
 
 src/entities/robot.hpp:
@@ -8,6 +14,18 @@ src/entities/robot.hpp:
 src/entities/../core/position.hpp:
 
 src/entities/../core/direction.hpp:
+
+src/entities/../statuses/all_statuses.hpp:
+
+src/entities/../statuses/status.hpp:
+
+src/entities/../statuses/slowness.hpp:
+
+src/entities/../statuses/burning.hpp:
+
+src/entities/../statuses/overload.hpp:
+
+src/entities/../statuses/shield.hpp:
 
 src/entities/enemy_robot.hpp:
 
