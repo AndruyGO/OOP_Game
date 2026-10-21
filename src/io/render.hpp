@@ -35,17 +35,18 @@ public:
     float TileSize() const;
     
     void DrawAbilityButton(Position pos, float scale, Ability::AbilityType ability, bool is_fade = 0);
-    
+    void DrawPlayerStatuses(const Game& game);
     void Flush();
     
 
     
 private:
+    sf::RenderWindow& window_;
     float tile_size_;
     sf::Texture tiles_texture_;
     sf::Texture robot_factory_;
     sf::Texture abilities_texture_;
-    sf::RenderWindow& window_;
+    sf::Texture statuses_texture_;
     sf::Font font_;
 };
 

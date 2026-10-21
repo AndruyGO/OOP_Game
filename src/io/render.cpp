@@ -10,6 +10,8 @@ Render::Render(sf::RenderWindow& window) : window_(window) {
         throw std::runtime_error("Tiles not loaded");
     if(!abilities_texture_.loadFromFile("../assets/abilities_texture.png"))
         throw std::runtime_error("Icons not loaded");
+    if(!statuses_texture_.loadFromFile("../assets/statuses.png"))
+        throw std::runtime_error("Statuses not loaded");
 }
 
 void Render::Draw(const Game& game) {
@@ -30,6 +32,7 @@ void Render::Draw(const Game& game) {
         DrawCenteredText("Player Won", sf::Color::Green);
     }
     DrawUI(game);
+    DrawPlayerStatuses(game);
 
     if(game.InputStatus() == Game::InputStatuses::kWaitingForMouseToAbility) {
         DrawAbilityRadius(game);
@@ -65,43 +68,74 @@ void Render::DrawField(const Game &game) {
     const GameField& field = game.Field();
     const PlayerRobot& player = game.Player();
     for (int y = 0; y < field.Height(); ++y) {
-        for (int x = 0; x < field.Width(); ++x) {
-            sf::RectangleShape tile({tile_size_ - 1.f, tile_size_ - 1.f});
-            tile.setPosition(x * tile_size_, y * tile_size_);
-            if(field.GetCell(x, y).IsVisited() || SHOW_NONVISITED_CELLS) {
-                
-                sf::Sprite tile(tiles_texture_);
-                tile.setTextureRect(sf::IntRect(
-                    field.GetCell(x, y).Type() * kTileSize,   // x в атласе
-                    0,                  // y в атласе
-                    kTileSize,          // ширина
-                    kTileSize           // высота
-                ));
+    for (int x = 0; x < field.Width(); ++x) {
+        sf::RectangleShape tile({tile_size_ - 1.f, tile_size_ - 1.f});
+        tile.setPosition(x * tile_size_, y * tile_size_);
+        if(field.GetCell(x, y).IsVisited() || SHOW_NONVISITED_CELLS) {
+            
+            sf::Sprite tile(tiles_texture_);
+            tile.setTextureRect(sf::IntRect(
+                field.GetCell(x, y).Type() * kTileSize,   // x в атласе
+                0,                  // y в атласе
+                kTileSize,          // ширина
+                kTileSize           // высота
+            ));
 
-                /*
-                switch(field.GetCell(x, y).Type()) {
-                    case 0: tile.setFillColor(sf::Color(30, 30, 30)); break;
-                    case 1: tile.setFillColor(sf::Color(80, 80, 80)); break;
-                    case 2: tile.setFillColor(sf::Color(150, 90, 60)); break;
-                    default: tile.setFillColor(sf::Color(0, 0, 0)); break;
-                }
-                */
-                tile.setPosition(x * tile_size_, y * tile_size_);
-                float scale = tile_size_ / kTileSize;
-                tile.setScale(scale, scale);
-                
-                window_.draw(tile);
-                
-                if(player.NowPosition().DistanceTo(x, y) > player.VisibilityRadius()) {
-                    sf::RectangleShape fadetile({tile_size_ , tile_size_});
-                    fadetile.setPosition(x * tile_size_, y * tile_size_);
-                    fadetile.setFillColor(sf::Color(0, 0, 0, 128));
-                    window_.draw(fadetile);
-                }
-                
-
+            /*
+            switch(field.GetCell(x, y).Type()) {
+                case 0: tile.setFillColor(sf::Color(30, 30, 30)); break;
+                case 1: tile.setFillColor(sf::Color(80, 80, 80)); break;
+                case 2: tile.setFillColor(sf::Color(150, 90, 60)); break;
+                default: tile.setFillColor(sf::Color(0, 0, 0)); break;
             }
+            */
+            tile.setPosition(x * tile_size_, y * tile_size_);
+            float scale = tile_size_ / kTileSize;
+            tile.setScale(scale, scale);
+            
+            window_.draw(tile);
+            
+            if(player.NowPosition().DistanceTo(x, y) > player.VisibilityRadius()) {
+                sf::RectangleShape fadetile({tile_size_ , tile_size_});
+                fadetile.setPosition(x * tile_size_, y * tile_size_);
+                fadetile.setFillColor(sf::Color(0, 0, 0, 128));
+                window_.draw(fadetile);
+            } else {
+
+                // statuses
+                int offset = 0;
+                int t = 0;
+                for (auto status : field.GetCell(x, y).GetStatuses()) {
+
+                    switch (status->GetStatusType()) {
+                        case Status::StatusType::kBurning: t = 0; break;
+                        case Status::StatusType::kOverload: t = 1; break;
+                        case Status::StatusType::kShield:   t = 2; break;
+                        case Status::StatusType::kSlowness: t = 3; break;
+                    }
+                    
+                    sf::Sprite status_tile(statuses_texture_);
+                    
+                    status_tile.setTextureRect(sf::IntRect(
+                        t*16,   // x в атласе
+                        0,      // y в атласе
+                        16,     // ширина
+                        16      // высота
+                    ));
+                    
+                    status_tile.setPosition(x * tile_size_ + offset, y * tile_size_);
+                    float scale = ( tile_size_ / kTileSize ) / 4;
+                    status_tile.setScale(scale, scale);
+            
+                    window_.draw(status_tile);
+                    
+                    offset+=tile_size_/4;
+                }
+            }
+            
+
         }
+    }
     }
 }
 
@@ -212,17 +246,34 @@ void Render::DrawBar(Position pos, double now, double max, sf::Color bar_color, 
 }
 
 void Render::DrawUI(const Game& game) {
-    sf::RectangleShape cross_line({5, window_.getSize().y});
+    sf::RectangleShape cross_line({6, window_.getSize().y});
     cross_line.setPosition(window_.getSize().y, 0);
     cross_line.setFillColor(sf::Color(128, 128, 128));
     
     window_.draw(cross_line);
 
+    sf::RectangleShape bg({window_.getSize().x - window_.getSize().y, window_.getSize().y});
+    bg.setPosition(window_.getSize().y + 6, 0);
+    bg.setFillColor(sf::Color(68, 68, 68));
+    
+    window_.draw(bg);
+
+    sf::RectangleShape shadow_line({window_.getSize().x - window_.getSize().y, 6});
+    shadow_line.setPosition(window_.getSize().y+6, window_.getSize().y - 6);
+    shadow_line.setFillColor(sf::Color(58, 58, 58));
+    window_.draw(shadow_line);
+
+    sf::RectangleShape shadow_line2({6, window_.getSize().y});
+    shadow_line2.setPosition(window_.getSize().x-6, 0);
+    shadow_line2.setFillColor(sf::Color(58, 58, 58));
+    window_.draw(shadow_line2);
+
+
     
     const PlayerRobot &player = game.Player();
     DrawBar({window_.getSize().y + 30, 100}, player.NowHealth(), player.MaxHealth(), sf::Color::Red, sf::Color::White);
     DrawBar({window_.getSize().y + 30, 200}, player.NowEnergy(), player.MaxEnergy(), sf::Color::Green, sf::Color(50, 50, 50));
-    DrawText({window_.getSize().y + 100, 325}, "Rank : "+std::to_string((int)player.Rank()), 20, sf::Color::White);
+    DrawText({window_.getSize().y + 70, 325}, "Rank : "+std::to_string((int)player.Rank()), 20, sf::Color::White);
 
 }
 
@@ -347,5 +398,41 @@ void Render::DrawAbilityButton(Position pos, float scale, Ability::AbilityType a
     }
 
 }
+
+void Render::DrawPlayerStatuses(const Game& game) {
+    const PlayerRobot &player = game.Player();
+
+    int offset = 0;
+    int t = 0;
+    for (auto status : player.Statuses()) {
+
+        switch (status->GetStatusType()) {
+            case Status::StatusType::kBurning: t = 0; break;
+            case Status::StatusType::kOverload: t = 1; break;
+            case Status::StatusType::kShield:   t = 2; break;
+            case Status::StatusType::kSlowness: t = 3; break;
+        }
+        
+        sf::Sprite tile(statuses_texture_);
+        
+        tile.setTextureRect(sf::IntRect(
+            t*16,   // x в атласе
+            0,      // y в атласе
+            16,     // ширина
+            16      // высота
+        ));
+        
+        tile.setPosition(window_.getSize().y + offset + 20, 20);
+        tile.setScale(3, 3);
+        window_.draw(tile);
+        
+        DrawText({window_.getSize().y + 30 + offset, 60}, std::to_string(status->Count()),12, sf::Color::White);
+        
+        offset+=60;
+    }
+
+
+}
+
 
 void Render::Flush() { window_.display(); }

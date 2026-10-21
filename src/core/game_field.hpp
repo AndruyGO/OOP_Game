@@ -17,9 +17,9 @@ private:
 public:
     GameField(const std::vector<std::vector<int>> &layout,
         const std::vector<std::vector<int>> &movement_costs,
-        const Position &player_start_position);
+        const Position &player_start_position, bool generate_random_statuses = 0);
     
-    GameField(int H = 32, int W = 32);
+    GameField(int H = 32, int W = 32, bool generate_random_statuses = 0);
 
     ~GameField() = default;
 
@@ -43,6 +43,9 @@ public:
     static constexpr int kMaxWidth = 60;
     static constexpr int kMinHeight = 10;
     static constexpr int kMinWidth = 10;
+private:
+    Status::StatusType GetStatusWithNumber(int n);
+    
 };
 
 

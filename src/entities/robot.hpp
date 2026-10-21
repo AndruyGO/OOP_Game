@@ -4,7 +4,7 @@
 #include "../core/position.hpp"
 #include <list>
 #include <memory>
-
+#include "../statuses/all_statuses.hpp"
 class Ability;
 
 class Robot
@@ -21,6 +21,7 @@ protected:
     int now_energy_;
     Position now_position_;
     std::list<Ability*> abilities_;
+    std::list<Status*> statuses_; 
 
 public:
     Robot(int of, int max_health, int max_energy,
@@ -62,6 +63,9 @@ public:
     void AddNowEnergy(int value);
     std::list<Ability*>& Abilities();
     const std::list<Ability*>& Abilities() const;
+
+    std::list<Status*>& Statuses();
+    const std::list<Status*>& Statuses() const;
 
     bool operator < (const Robot &another_robot) const;
     bool operator == (const Robot &another_robot) const;
