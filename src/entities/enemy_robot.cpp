@@ -2,8 +2,8 @@
 #include "enemy_robot.hpp"
 
 EnemyRobot::EnemyRobot(int id, int max_health, int max_energy,
-    int damage, bool is_friendly, int speed)
-    : Robot(id, max_health, max_energy, damage, is_friendly, speed) {}
+    int damage, bool is_friendly, int speed, int visibility_radius)
+    : Robot(id, max_health, max_energy, damage, is_friendly, speed, visibility_radius) {}
     
 EnemyRobot::EnemyRobot()
-    : Robot(0, 100, 100, 50, 0, 1) {}
+    : Robot(0, 100, 100, 50, 0, 1, 3) {}

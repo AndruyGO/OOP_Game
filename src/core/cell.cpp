@@ -59,7 +59,7 @@ Status * Cell::TakeRandomStatus() {
     for(int i = 0; i < n; i++) it++;
     auto res = *it;
     statuses_.erase(it);
-    return *it;
+    return res;
 }
 
 

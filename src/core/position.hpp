@@ -19,14 +19,21 @@ public:
     double DistanceTo(int x, int y) const;
     double DistanceTo(Position pos) const;
 
-    Position Up();
-    Position Down();
-    Position Left();
-    Position Right();
-
+    
+    Position RePositionUp();
+    Position RePositionDown();
+    Position RePositionLeft();
+    Position RePositionRight();
+    Position Up() const;
+    Position Down() const;
+    Position Left() const;
+    Position Right() const;
+    
     Position MoveToDirection(Direction direction);
 
     bool operator ==(const Position &another_position) const;
+    bool operator <(const Position &another_position) const;
+    bool operator >(const Position &another_position) const;
     
 };
 

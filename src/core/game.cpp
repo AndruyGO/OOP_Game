@@ -1,5 +1,6 @@
 #include <random>
 #include <set>
+#include <queue>
 #include <algorithm>
 #include "game.hpp"
 #include "game_field.hpp"
@@ -92,6 +93,7 @@ bool Game::ProcessPlayerCommans(InputContainer cmd) {
             break;
         case Command::kWait:
             is_executed = 1;
+            player_robot_.ReduceMovesRemain(1);
             break;
         case Command::kQuit:
             is_executed = 1;
@@ -118,7 +120,6 @@ bool Game::ProcessPlayerCommans(InputContainer cmd) {
             break;
     }
     if (is_executed) {
-        player_robot_.ReduceMovesRemain(game_field_.GetCell(player_robot_.NowPosition()).MovementCost());
         game_field_.OpenCells(player_robot_.NowPosition(),
                               player_robot_.VisibilityRadius());
     }
@@ -177,11 +178,14 @@ bool Game::TryMove(Robot &robot, Position next_position) {
         auto another_robot = RobotOnPosition(next_position);
         if(another_robot == nullptr && factory == nullptr){
             robot.SetPosition(next_position);
+            robot.ReduceMovesRemain(game_field_.GetCell(next_position).MovementCost());
             AddStatus(robot, game_field_.GetCell(next_position).TakeRandomStatus());
         }else if(another_robot != nullptr){
             InteractWithRobot(robot, *another_robot);
+            robot.ReduceMovesRemain(1);
         }else if(factory != nullptr) {
             InteractWithBuilding(robot, *factory);
+            robot.ReduceMovesRemain(1);
         } else {
             return false;
         }
@@ -194,10 +198,10 @@ bool Game::TryMove(Robot &robot, Position next_position) {
 bool Game::TryMove(Robot &robot, Direction direction) {
     Position next_position(robot.NowPosition());
     switch (direction) {
-        case Direction::kUp:    next_position.Up();    break;
-        case Direction::kDown:  next_position.Down();  break;
-        case Direction::kLeft:  next_position.Left();  break;
-        case Direction::kRight: next_position.Right(); break;
+        case Direction::kUp:    next_position.RePositionUp();    break;
+        case Direction::kDown:  next_position.RePositionDown();  break;
+        case Direction::kLeft:  next_position.RePositionLeft();  break;
+        case Direction::kRight: next_position.RePositionRight(); break;
         default: return false;
     }
     return TryMove(robot, next_position);
@@ -275,41 +279,130 @@ bool Game::IsWin() const {
 
 
 void Game::RobotMove(EnemyRobot& robot) {
+    // 1. Статусы до хода и проверка на смерть (остается как было)
     ApplyStatuses(robot, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
     if(robot.NowHealth() <= 0) {
         if(!robot.IsFriendly()) {
             Player().AddNowXP(25);
             RankUp();
         }
-        Kill(&robot);
         return;
     }
+
+    // 2. Использование способностей (до движения)
+    double dist_to_player = player_robot_.NowPosition().DistanceTo(robot.NowPosition().X(), robot.NowPosition().Y());
+    bool player_visible = dist_to_player <= robot.VisibilityRadius();
+
+    // Лечение (Heal)
+    if (GetAbility(robot, Ability::AbilityType::kHeal) != nullptr && 
+        robot.NowHealth() < robot.MaxHealth() && 
+        CanRobotUseAbility(robot, Ability::AbilityType::kHeal)) {
+        UseAbility(robot, Ability::AbilityType::kHeal, robot.NowPosition());
+    }
+
+    // Телепортация (Teleport)
+    std::uniform_int_distribution<int> chance_dist(0, 99);
     static std::mt19937 rng(std::random_device{}());
 
-    std::vector<Position> allowed_positions;
-
-    for (Direction dir : {Direction::kUp, Direction::kDown,
-                          Direction::kLeft, Direction::kRight}) {
-        Position next = robot.NowPosition().MoveToDirection(dir);
-        if (!game_field_.IsInside(next))
-            continue;
-        if (!game_field_.GetCell(next).Passable())
-            continue;
-        allowed_positions.push_back(next);
+    if (GetAbility(robot, Ability::AbilityType::kTeleport) != nullptr && 
+        CanRobotUseAbility(robot, Ability::AbilityType::kTeleport)) {
+        
+        if (player_visible) {
+            // Игрок виден: телепортируемся как можно ближе к нему
+            Position target = player_robot_.NowPosition();
+            // Ищем свободную клетку рядом с игроком
+            for (Direction d : {Direction::kUp, Direction::kDown, Direction::kLeft, Direction::kRight}) {
+                Position p = target.MoveToDirection(d);
+                if (game_field_.IsInside(p) && game_field_.GetCell(p).Passable() && RobotOnPosition(p) == nullptr) {
+                    target = p;
+                    break;
+                }
+            }
+            UseAbility(robot, Ability::AbilityType::kTeleport, target);
+            
+        } else {
+            // Игрок не виден: 30% шанс телепорта в случайное место
+            
+            
+            if (chance_dist(rng) < 30) {
+                std::vector<Position> valid_spots;
+                for (int y = 0; y < game_field_.Height(); ++y) {
+                    for (int x = 0; x < game_field_.Width(); ++x) {
+                        Position p(x, y);
+                        if (game_field_.GetCell(p).Passable() && 
+                            game_field_.GetCell(p).MovementCost() <= robot.Speed() &&
+                            RobotOnPosition(p) == nullptr && 
+                            FactoryOnPosition(p) == nullptr) {
+                            valid_spots.push_back(p);
+                        }
+                    }
+                }
+                if (!valid_spots.empty()) {
+                    std::uniform_int_distribution<int> spot_dist(0, valid_spots.size() - 1);
+                    UseAbility(robot, Ability::AbilityType::kTeleport, valid_spots[spot_dist(rng)]);
+                }
+            }
+        }
     }
 
-    if (allowed_positions.empty()) {
-        robot.SetMovesRemain(0);
-        return;
-    }
+    // 3. Движение
+    // Пересчитываем видимость (после телепортации)
+    dist_to_player = player_robot_.NowPosition().DistanceTo(robot.NowPosition().X(), robot.NowPosition().Y());
+    player_visible = dist_to_player <= robot.VisibilityRadius();
     
-    std::uniform_int_distribution<int> dist(0, allowed_positions.size() - 1);
-    TryMove(robot, allowed_positions[dist(rng)]);
-    robot.ReduceMovesRemain(game_field_.GetCell(allowed_positions[dist(rng)]).MovementCost());
+    
+    bool step_found = 0;
+    bool random_move = chance_dist(rng) < 20;
+    if (player_visible && !random_move) {
 
+        // --- Поиск пути алгоритмом Дейкстры ---
+        
+        Position nex_pos = game_field_.NexMoveWithDijksrta(robot.NowPosition(), Player().NowPosition(),
+                                                        robot.Speed(), robot.VisibilityRadius());
+        
+        if(nex_pos == Position(-1, -1)) {
+            step_found = 0;
+        } else {
+            step_found = 1;
+        }
+
+        if(step_found) {
+            while(TryMove(robot, nex_pos)) {
+                nex_pos = game_field_.NexMoveWithDijksrta(
+                    robot.NowPosition(), Player().NowPosition(),
+                    robot.Speed(), robot.VisibilityRadius());
+            }
+        }
+    }
+    if(!player_visible || !step_found || random_move) {
+            
+        // Если игрок не виден, или путь не найден (окружен) — идем случайно
+        while (robot.MovesRemain() > 0) {
+
+            std::vector<Position> allowed_positions;
+            for (Direction dir : {Direction::kUp, Direction::kDown, Direction::kLeft, Direction::kRight}) {
+                Position next = robot.NowPosition().MoveToDirection(dir);
+                if (!game_field_.IsInside(next)) continue;
+                if (!game_field_.GetCell(next).Passable()) continue;
+                if (game_field_.GetCell(next).MovementCost() > robot.MovesRemain()) continue;
+                allowed_positions.push_back(next);
+            }
+
+            if (allowed_positions.empty()) {
+                robot.SetMovesRemain(0);
+                break;
+            }
+            
+            static std::mt19937 rng(std::random_device{}());
+            std::uniform_int_distribution<int> dist_dist(0, allowed_positions.size() - 1);
+            Position nex_pos = allowed_positions[dist_dist(rng)];
+            TryMove(robot, nex_pos);
+            
+        }
+    }
+    // 4. Статусы после хода
     ApplyStatuses(robot, Status::StatusType::kNone, Status::StatusGroup::kAfterMove);
 }
-
 void Game::RobotsMove() {
     BuildingsMove();
 
@@ -319,6 +412,8 @@ void Game::RobotsMove() {
         while(robot.MovesRemain() > 0)
             RobotMove(robot);
     }
+    robots_.remove_if([](const Robot &robot){return robot.NowHealth() == 0;});
+    IsWin();
     SwitchMove();
     player_robot_.AddNowEnergy(25);
     player_robot_.RecoverMoves();
@@ -351,15 +446,21 @@ void Game::BuildingsMove() {
 
         factory.Move();
         if(factory.RobotsInside() > 0){
-            bool is_spawned = SpawnRobot(EnemyRobot(GetId(), 100, 100, 50, factory.IsFriendly(), 1), factory.TopLeftPosition().Left());
+            bool is_spawned = SpawnRobot(EnemyRobot(GetId(), 100, 100, 50, factory.IsFriendly(), 1, 3), factory.TopLeftPosition().Left());
             if(is_spawned) factory.ReduceRobotsInside(1);
         }
     }
 }
 
 bool Game::SpawnRobot(EnemyRobot robot, Position pos) {
+    std::uniform_int_distribution<int> ability(0, 1);
+    static std::mt19937 rng(std::random_device{}());
+    int r = ability(rng);
     if(game_field_.GetCell(pos).Passable() == 1 && RobotOnPosition(pos) == nullptr &&
         FactoryOnPosition(pos) == nullptr) {
+        
+            if(r == 0) AddAbility(robot, Ability::AbilityType::kHeal);
+        if(r == 1) AddAbility(robot, Ability::AbilityType::kTeleport);
         
         robots_.push_back(std::move(robot));
         robots_.back().SetPosition(pos);

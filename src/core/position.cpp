@@ -30,20 +30,33 @@ double Position::DistanceTo(int x, int y) const{
     return std::sqrt((x-x_)*(x-x_) + (y-y_)*(y-y_));
 }
 
-Position Position::Up() {
+Position Position::RePositionUp() {
     return Position ((*this).x_, --(*this).y_);
 }
 
-Position Position::Down() {
+Position Position::RePositionDown() {
     return Position ((*this).x_, ++(*this).y_);
 }
 
-Position Position::Left() {
+Position Position::RePositionLeft() {
     return Position (--(*this).x_, (*this).y_);
 }
 
-Position Position::Right() {
+Position Position::RePositionRight() {
     return Position (++(*this).x_, (*this).y_);
+}
+
+Position Position::Up() const {
+    return Position(x_, y_ - 1);
+}
+Position Position::Down() const {
+    return Position(x_, y_ + 1);
+}
+Position Position::Left() const {
+    return Position(x_ - 1, y_);
+}
+Position Position::Right() const {
+    return Position(x_ + 1, y_);
 }
 
 Position Position::MoveToDirection(Direction direction){
@@ -65,3 +78,13 @@ Position Position::MoveToDirection(Direction direction){
 bool Position::operator ==(const Position &another_position) const {
     return x_ == another_position.X() && y_ == another_position.Y();
 } 
+bool Position::operator<(const Position &another_position) const {
+    if (x_ != another_position.X()) {
+        return x_ < another_position.X();
+    }
+    return y_ < another_position.Y();
+}
+
+bool Position::operator>(const Position &another_position) const {
+    return another_position < *this;
+}
