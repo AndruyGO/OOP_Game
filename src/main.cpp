@@ -36,13 +36,13 @@ int main() {
 
     GameField field(type_map, movement_costs_map, Position(2, 2), 1);
     field.AddFrame();
-    PlayerRobot player(1, 100, 100, 50, 1, 3, 1, 3);
+    PlayerRobot player(1, 100, 100, 50, 1, 1, 1, 3);
     player.SetPosition(field.PlayerStartPosition());
 
     std::vector<EnemyRobot> enemies;
-    enemies.emplace_back(2, 100, 100, 50, false, 1);
+    enemies.emplace_back(2, 100, 100, 50, false, 1, 4);
     enemies.back().SetPosition({7, 7});
-    enemies.emplace_back(2, 100, 100, 50, true, 1);
+    enemies.emplace_back(2, 100, 100, 50, true, 1, 4);
     enemies.back().SetPosition({1, 1});
 
     std::vector<RobotFactory> factories;

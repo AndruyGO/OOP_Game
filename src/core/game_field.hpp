@@ -39,6 +39,8 @@ public:
 
     void OpenCells(Position position, int radius);
 
+    Position NexMoveWithDijksrta(Position start, Position end, int max_movement, int radius);
+
     static constexpr int kMaxHeight = 60;
     static constexpr int kMaxWidth = 60;
     static constexpr int kMinHeight = 10;

@@ -2,7 +2,9 @@
 #include "game_field.hpp"
 #include "position.hpp"
 #include "cell.hpp"
+#include <set>
 #include <random>
+#include <iostream>
 
 GameField::GameField(const std::vector<std::vector<int>> &layout,
         const std::vector<std::vector<int>> &movement_costs,
@@ -164,4 +166,54 @@ Status::StatusType GameField::GetStatusWithNumber(int n) {
         case 3: return Status::StatusType::kSlowness; break;
     }
     return Status::StatusType::kNone;
+}
+
+
+
+
+Position GameField::NexMoveWithDijksrta(Position start, Position end, int max_movement, int radius) {
+    using Node = std::pair<std::pair<int, int>, std::pair<Position, Position>>;
+    std::set<Node> priority_queue;
+    //           dist,      now pos,  first pos after start_pos
+
+    // Массив для хранения лучшей дистанции до каждой клетки
+    std::vector<std::vector<int>> best_dist(H_, std::vector<int>(W_, 999999));
+
+    for(Position pos : {start.Up(), start.Right(), start.Left(), start.Down()}) {
+        if(IsInside(pos) && GetCell(pos).Passable() &&
+        GetCell(pos).MovementCost() <=  max_movement) {
+            int cost = GetCell(pos).MovementCost();
+            priority_queue.insert({{cost, 1}, {pos, pos}});
+            best_dist[pos.Y()][pos.X()] = cost;
+        }
+    }
+
+    while(!priority_queue.empty()) {
+        Node p = *priority_queue.begin();
+        priority_queue.erase(priority_queue.begin());
+
+        if(p.second.first == end) {
+            return p.second.second;
+        }
+        
+        if(p.first.second < radius) {
+            for(Position pos : {p.second.first.Up(), p.second.first.Right(), p.second.first.Left(), p.second.first.Down()}) {
+                // Проверка на выход за границы и проходимость
+                if(IsInside(pos) && GetCell(pos).Passable() &&
+                GetCell(pos).MovementCost() <=  max_movement) {
+                    
+                    int new_dist = p.first.first + GetCell(pos).MovementCost();
+                    
+                    // ГЛАВНАЯ ПРОВЕРКА НА ПОСЕЩЕНИЕ:
+                    // Если мы уже были в этой клетке с меньшей или равной дистанцией, пропускаем
+                    if(new_dist < best_dist[pos.Y()][pos.X()]) {
+                        best_dist[pos.Y()][pos.X()] = new_dist;
+                        priority_queue.insert({{new_dist, p.first.second + 1}, {pos, p.second.second}});
+                    }
+                }
+            }
+        }
+    }
+
+    return Position(-1, -1);
 }

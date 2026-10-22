@@ -2,16 +2,19 @@
 #include "robot.hpp"
 #include "enemy_robot.hpp"
 #include "../abilities/ability.hpp"
+#include <queue>
+#include <limits>
 #include <iostream>
 
 Robot::Robot(int id, int max_health, int max_energy, int damage,
-    bool is_friendly, int speed)
+    bool is_friendly, int speed, int visibility_radius)
     : id_(id),
       max_health_(max_health),
       max_energy_(max_energy),
       damage_(damage), 
       is_friendly_(is_friendly),
       speed_(speed),
+      visibility_radius_(visibility_radius),
       moves_remain_(speed),
       now_health_(max_health),
       now_energy_(max_energy) {}
@@ -140,4 +143,13 @@ std::list<Status*>& Robot::Statuses() {
 
 const std::list<Status*>& Robot::Statuses() const {
     return statuses_;
+}
+
+int Robot::VisibilityRadius() const { return visibility_radius_; }
+void Robot::SetVisibilityRadius(int value) {
+    if (value < 1){
+        visibility_radius_ = 1;
+    }else{
+        visibility_radius_ = value;
+    }
 }

@@ -16,6 +16,7 @@ protected:
     int damage_;
     bool is_friendly_;
     int speed_;
+    int visibility_radius_;
     int moves_remain_;
     int now_health_;
     int now_energy_;
@@ -25,7 +26,7 @@ protected:
 
 public:
     Robot(int of, int max_health, int max_energy,
-        int damage, bool is_friendly, int speed);
+        int damage, bool is_friendly, int speed, int visibility_radius);
 
     ~Robot();
     
@@ -61,6 +62,8 @@ public:
     void Hit(int value);
     void Heal(int value);
     void AddNowEnergy(int value);
+    int VisibilityRadius() const;
+    void SetVisibilityRadius(int value);
     std::list<Ability*>& Abilities();
     const std::list<Ability*>& Abilities() const;
 

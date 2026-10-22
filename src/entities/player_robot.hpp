@@ -6,7 +6,7 @@
 class PlayerRobot : public Robot {
 
 private:
-    int rank_, now_xp_, xp_required, visibility_radius_;
+    int rank_, now_xp_, xp_required;
 
 public:
     PlayerRobot(int id, int max_health, int max_energy,
@@ -23,11 +23,10 @@ public:
     int NowXp() const;
     int XpRequired() const;
     bool IsEnoughXP() const;
-    int VisibilityRadius() const;
-
+    
     void SetNowXP(int value);
     void AddNowXP(int value);
-    void SetVisibilityRadius(int value);
+    
     
     int CalculateXPForRank(int rank);
     void RankUp();
