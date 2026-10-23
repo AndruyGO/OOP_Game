@@ -5,15 +5,16 @@
 GUI::GUI(sf::RenderWindow &window, Game& game) :
             window_(window),
             game_(game),
-            render_(window) {}
+            render_(window),
+            render_status_(RenderStatus::kStandart)
+            {}
 
 InputSystem& GUI::Input() { return input_system_; }
 
 Render& GUI::Renderer() { return render_; }
 
 void GUI::Draw() { 
-    render_.Draw(game_);
-    
+    render_.Draw(game_, render_status_);
 
     //std::cout << buttons_.size() << std::endl;
     //if(game.InputStatus() == Game::InputStatuses::kWaitingForRankUp) std::cout << "lol" << std::endl;
@@ -132,6 +133,14 @@ InputContainer GUI::GetCommand() {
                 }
             }
         }
+    } else if(cmd.command == Command::kChangeRenderStatus) {
+        switch (render_status_) {
+            case RenderStatus::kStandart: render_status_ = RenderStatus::kLightEnemies; break;
+            case RenderStatus::kLightEnemies: render_status_ = RenderStatus::kLightUnpassage; break;
+            case RenderStatus::kLightUnpassage: render_status_ = RenderStatus::kLightStatuses; break;
+            case RenderStatus::kLightStatuses: render_status_ = RenderStatus::kStandart; break;
+        }
+        cmd.command = Command::kNone;
     }
 
     return cmd;
@@ -141,17 +150,6 @@ void GUI::UpdateButtonsFade() {
     Position mouse_pos = input_system_.MousePosition();
     for(auto& button : buttons_) {
         button.Fade();
-        /*
-        if( 
-        ||(game_.InputStatus() == Game::InputStatuses::kWaitingForRankUp && button.Type() == Button::ButtonTypes::kRankUp)) {
-            if(button.Contains(mouse_pos)) {
-                button.is_fade = 1;
-                //break;
-            } else {
-                button.is_fade = 0;
-            }
-        }
-        */
     }
 }
 

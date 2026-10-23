@@ -14,8 +14,9 @@ build/core/game.o: src/core/game.cpp src/core/game.hpp \
  src/core/../io/input_contaioner.hpp src/core/../io/../core/commands.hpp \
  src/core/../io/../core/position.hpp \
  src/core/../abilities/area_strike.hpp src/core/../abilities/ability.hpp \
- src/core/../abilities/heal.hpp src/core/../abilities/far_hit.hpp \
- src/core/../abilities/teleport.hpp
+ src/core/../abilities/heal.hpp \
+ src/core/../abilities/../statuses/shield.hpp \
+ src/core/../abilities/far_hit.hpp src/core/../abilities/teleport.hpp
 
 src/core/game.hpp:
 
@@ -70,6 +71,8 @@ src/core/../abilities/area_strike.hpp:
 src/core/../abilities/ability.hpp:
 
 src/core/../abilities/heal.hpp:
+
+src/core/../abilities/../statuses/shield.hpp:
 
 src/core/../abilities/far_hit.hpp:
 

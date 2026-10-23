@@ -15,7 +15,8 @@ enum class Command {
     kUseHeal,
     kUseTeleport,
     kUseFarHit,
-    kCancel
+    kCancel,
+    kChangeRenderStatus
 };
 
 #endif

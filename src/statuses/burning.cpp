@@ -1,7 +1,7 @@
 #include "burning.hpp"
 #include "../entities/robot.hpp"
 
-Burning::Burning() : count_(3) {}
+Burning::Burning(int count) : count_(count) {}
 
 Status::StatusType Burning::GetStatusType() const {
     return Status::StatusType::kBurning;

@@ -128,8 +128,8 @@ bool Game::ProcessPlayerCommans(InputContainer cmd) {
 
     } else if(InputStatus() == Game::InputStatuses::kWaitingForMouseToAbility) {
         if(cmd.command == Command::kSelectTarget) {
-            UseAbility(player_robot_, last_ability_, cmd.field_mouse_position);
             input_status_ = Game::InputStatuses::kStandard;
+            UseAbility(player_robot_, last_ability_, cmd.field_mouse_position);
             game_field_.OpenCells(player_robot_.NowPosition(),
                               player_robot_.VisibilityRadius());
             return true;
@@ -215,8 +215,7 @@ void Game::InteractWithBuilding(Robot &actor, Building &target) {
         target.Hit(actor.Damage());
         if(target.NowHealth() <= 0) {
             if(actor.Id() == player_robot_.Id()){
-                player_robot_.AddNowXP(50);
-                RankUp();
+                
             }
             Kill(&target);
         }
@@ -235,6 +234,7 @@ void Game::InteractWithRobot(Robot &actor, Robot &target) {
                 player_robot_.AddNowXP(25);
                 RankUp();
             }
+            
             Kill(&target);
         }
     }
@@ -252,11 +252,13 @@ void Game::Kill(Building *building) {
 
 void Game::Kill(Robot *robot){
     if(robot == nullptr) return;
-
+    
     if((*robot).Id() == player_robot_.Id()){
         SetGameStatus(GameStatuses::kGameOver);
     }else{
         robots_.erase(std::find(robots_.begin(), robots_.end(), *robot));
+        player_robot_.AddNowXP(50);
+        RankUp();
         if(IsWin()){
             SetGameStatus(GameStatuses::kGamePassed);
         }
@@ -283,9 +285,10 @@ void Game::RobotMove(EnemyRobot& robot) {
     ApplyStatuses(robot, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
     if(robot.NowHealth() <= 0) {
         if(!robot.IsFriendly()) {
-            Player().AddNowXP(25);
-            RankUp();
+            player_robot_.AddNowXP(50);
+            RankUp(); 
         }
+        //Kill(&robot);
         return;
     }
 
@@ -329,7 +332,7 @@ void Game::RobotMove(EnemyRobot& robot) {
                 for (int y = 0; y < game_field_.Height(); ++y) {
                     for (int x = 0; x < game_field_.Width(); ++x) {
                         Position p(x, y);
-                        if (game_field_.GetCell(p).Passable() && 
+                        if (game_field_.IsInside(p) && game_field_.GetCell(p).Passable() && 
                             game_field_.GetCell(p).MovementCost() <= robot.Speed() &&
                             RobotOnPosition(p) == nullptr && 
                             FactoryOnPosition(p) == nullptr) {
@@ -409,8 +412,8 @@ void Game::RobotsMove() {
     for (auto& robot : robots_) {
         robot.RecoverMoves();
         robot.AddNowEnergy(25);
-        while(robot.MovesRemain() > 0)
-            RobotMove(robot);
+        //while(robot.MovesRemain() > 0)
+        RobotMove(robot);
     }
     robots_.remove_if([](const Robot &robot){return robot.NowHealth() == 0;});
     IsWin();

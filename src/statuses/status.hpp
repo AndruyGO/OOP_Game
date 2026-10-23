@@ -7,7 +7,6 @@ class Status {
 public:
     enum class StatusType {
         kNone,
-        kItem,
         kSlowness,
         kOverload,
         kBurning,

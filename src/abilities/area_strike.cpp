@@ -41,7 +41,10 @@ void AreaStrike::Use(Robot &owner, Game& game, Position pos) {
             Robot *target_robot = game.RobotOnPosition({x, y});
             RobotFactory *target_factory = game.FactoryOnPosition({x, y});
 
-            if(target_robot != nullptr) game.InteractWithRobot(owner, *target_robot);
+            if(target_robot != nullptr) {
+                game.AddStatus(*target_robot, Status::StatusType::kOverload);
+                game.InteractWithRobot(owner, *target_robot);
+            }
             if(target_factory != nullptr) game.InteractWithBuilding(owner, *target_factory);
         }
     }

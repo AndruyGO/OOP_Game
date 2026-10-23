@@ -7,6 +7,12 @@ Cell::Cell(int type, bool is_visited, int movement_cost)
       is_visited_(is_visited),
       movement_cost_(movement_cost) {}
 
+Cell::~Cell() {
+    for(auto &status : statuses_) {
+        delete status;
+    }
+    statuses_.clear();
+}
 
 int Cell::Type() const { return type_; }
 bool Cell::IsVisited() const { return is_visited_; }
@@ -38,14 +44,9 @@ void Cell::SetMovementCost(int value){
 const std::list<Status*> &Cell::GetStatuses() const {
     return statuses_;
 }
-const std::list<Status*> &Cell::GetItems() const {
-    return items_;
-}
+
 std::list<Status*> &Cell::GetStatuses() {
     return statuses_;
-}
-std::list<Status*> &Cell::GetItems() {
-    return items_;
 }
 
 Status * Cell::TakeRandomStatus() {
@@ -70,8 +71,6 @@ void Cell::AddStatus(Status::StatusType status_type) {
         case Status::StatusType::kOverload: statuses_.push_back(new Overload()); break;
         case Status::StatusType::kShield:   statuses_.push_back(new Shield()); break;
         case Status::StatusType::kSlowness: statuses_.push_back(new Slowness()); break;
-        case Status::StatusType::kItem:
-            // add item *
             break;
     }
 }

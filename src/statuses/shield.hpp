@@ -6,7 +6,7 @@
 class Shield : public Status {
 public:
 
-    Shield();
+    Shield(int count = 100);
 
 
     StatusType GetStatusType() const override;
@@ -18,7 +18,6 @@ public:
 
 private:
     int count_;
-    int strength_;
 };
 
 

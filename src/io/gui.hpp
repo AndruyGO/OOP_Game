@@ -8,6 +8,7 @@
 #include "render.hpp"
 #include "../core/game.hpp"
 #include "button.hpp"
+#include "render_status.hpp"
 
 class GUI {
 private:
@@ -22,6 +23,8 @@ private:
     void AddRankUpButtons();
     void RemoveRankUpButtons();
 public:
+
+    
     
     GUI(sf::RenderWindow &window, Game& game);
 
@@ -32,7 +35,8 @@ public:
     InputContainer GetCommand();
 
 
-
+private:
+    RenderStatus render_status_;
 };
 
 

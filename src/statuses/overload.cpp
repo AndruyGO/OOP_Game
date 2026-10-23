@@ -1,7 +1,7 @@
 #include "overload.hpp"
 #include "../entities/robot.hpp"
 
-Overload::Overload() : count_(1) {}
+Overload::Overload(int count) : count_(count) {}
 
 Status::StatusType Overload::GetStatusType() const {
     return Status::StatusType::kOverload;
@@ -23,4 +23,4 @@ bool Overload::IsToRemove() const {
     return Count() == 0;
 }
 
-Status::StatusGroup Overload::GetStatusGroup() const { return Status::StatusGroup::kAfterMove; }
+Status::StatusGroup Overload::GetStatusGroup() const { return Status::StatusGroup::kBeforeMove; }

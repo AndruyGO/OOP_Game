@@ -20,7 +20,10 @@ public:
         const Position &player_start_position, bool generate_random_statuses = 0);
     
     GameField(int H = 32, int W = 32, bool generate_random_statuses = 0);
-
+    GameField(const GameField&) = delete;
+    GameField& operator=(const GameField&) = delete;
+    GameField(GameField&&) = default;
+    GameField& operator=(GameField&&) = default;
     ~GameField() = default;
 
     Position PlayerStartPosition() const;

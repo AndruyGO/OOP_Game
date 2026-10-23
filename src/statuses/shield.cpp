@@ -1,8 +1,8 @@
 #include "shield.hpp"
 #include "../entities/robot.hpp"
 
-#define STRENGTH_PER_COUNT 100
-Shield::Shield() : count_(1), strength_(STRENGTH_PER_COUNT) {}
+
+Shield::Shield(int count) : count_(count) {}
 
 Status::StatusType Shield::GetStatusType() const {
     return Status::StatusType::kShield;
@@ -10,28 +10,22 @@ Status::StatusType Shield::GetStatusType() const {
 
 void Shield::DoAction(Robot &target) {
     int delta = target.MaxHealth() - target.NowHealth();
-    if(delta <= strength_) {
-        strength_ -= delta;
+    if(delta <= count_) {
+        count_ -= delta;
         target.Heal(delta);
-    } else { // delta > strength
-        target.Heal(strength_);
-        strength_ = 0;
+    } else {
+        target.Heal(count_);
+        count_ = 0;
     }
-
-    count_ = ((strength_ + STRENGTH_PER_COUNT - 1) / STRENGTH_PER_COUNT);
 }
 
 int Shield::Count() const {
-    return strength_;
+    return count_;
 }
 
 void Shield::AddToCount(int value) {
-    int delta = value * STRENGTH_PER_COUNT;
-
-    strength_ += value;
-    if(strength_ < 0) strength_ = 0;
-
-    count_ = ((strength_ + STRENGTH_PER_COUNT - 1) / STRENGTH_PER_COUNT);
+    count_ += value;
+    if(count_ < 0) count_ = 0;
 
 }
 bool Shield::IsToRemove() const {

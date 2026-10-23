@@ -15,14 +15,22 @@ GameField::GameField(const std::vector<std::vector<int>> &layout,
         throw std::invalid_argument("Empty field");
     W_ = layout[0].size();
     H_ = layout.size();
-    game_field_.resize(H_, std::vector<Cell> (W_, Cell(0, 0)));
+    
+    // ПРАВИЛЬНАЯ ИНИЦИАЛИЗАЦИЯ БЕЗ КОПИРОВАНИЯ
+    game_field_.clear();
+    game_field_.resize(H_); // Создаем H_ пустых строк
     for(int y = 0; y < H_; y++){
+        game_field_[y].reserve(W_); // Резервируем память под W_ клеток
         for(int x = 0; x < W_; x++){
+            // Создаем клетку на месте (type=0, is_visited=false, movement_cost=1)
+            game_field_[y].emplace_back(0, false, 1); 
+            
             game_field_[y][x].SetType(layout[y][x]);
             game_field_[y][x].SetMovementCost(movement_costs[y][x]);
         }
     }
     AddFrame();
+    
     if(generate_random_statuses == 0) return;
     // random statuses
     static std::mt19937 rng(std::random_device{}());
@@ -43,6 +51,7 @@ GameField::GameField(const std::vector<std::vector<int>> &layout,
         }
     }
 }
+
 GameField::GameField(int H, int W, bool generate_random_statuses) {
     W_ = W;
     H_ = H;
@@ -51,9 +60,14 @@ GameField::GameField(int H, int W, bool generate_random_statuses) {
     if(W < kMinWidth) W_ = kMinWidth;
     if(W > kMaxWidth) W_ = kMaxWidth;
     
-    game_field_.resize(H_, std::vector<Cell> (W_, Cell(0, 0)));
+    // ПРАВИЛЬНАЯ ИНИЦИАЛИЗАЦИЯ БЕЗ КОПИРОВАНИЯ
+    game_field_.clear();
+    game_field_.resize(H_); 
     for(int y = 0; y < H_; y++){
+        game_field_[y].reserve(W_);
         for(int x = 0; x < W_; x++){
+            game_field_[y].emplace_back(0, false, 1);
+            
             game_field_[y][x].SetType(0);
             game_field_[y][x].SetMovementCost(1);
         }
@@ -66,7 +80,6 @@ GameField::GameField(int H, int W, bool generate_random_statuses) {
     static std::mt19937 rng(std::random_device{}());
     std::uniform_int_distribution<int> rand(0, 100);
     std::uniform_int_distribution<int> status_num(0, 3);
-
 
     for(int y = 0; y < H_; y++){
         for(int x = 0; x < W_; x++){
@@ -83,7 +96,6 @@ GameField::GameField(int H, int W, bool generate_random_statuses) {
     }
 
     player_start_position_ = Position(1, 1);    
-
 }
 
 

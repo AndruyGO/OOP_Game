@@ -4,6 +4,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "../core/game.hpp"
+#include "render_status.hpp"
 #include <string>
 
 #define SHOW_NONVISITED_CELLS 0
@@ -15,14 +16,12 @@ public:
     explicit Render(sf::RenderWindow& window);
     ~Render() = default;
     
-    void Draw(const Game& game);
+    void Draw(const Game& game, RenderStatus render_status);
     
     
-    
-    
-    void DrawField(const Game& game);
+    void DrawField(const Game& game, RenderStatus render_status);
     void DrawPlayer(const Game& game);
-    void DrawEnemies(const Game& game);
+    void DrawEnemies(const Game& game, RenderStatus render_status);
     void DrawBuildings(const Game& game);
     void DrawBar(Position pos, double now, double max, sf::Color color, sf::Color text_color);
     void DrawUI(const Game& game);
@@ -37,6 +36,8 @@ public:
     void DrawAbilityButton(Position pos, float scale, Ability::AbilityType ability, bool is_fade = 0);
     void DrawPlayerStatuses(const Game& game);
     void Flush();
+
+    void DrawRenderStatus(Game &game, RenderStatus render_status);
     
 
     

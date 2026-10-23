@@ -1,6 +1,7 @@
 build/abilities/heal.o: src/abilities/heal.cpp src/abilities/heal.hpp \
  src/abilities/ability.hpp src/abilities/../core/position.hpp \
- src/abilities/../core/direction.hpp src/abilities/../core/game.hpp \
+ src/abilities/../core/direction.hpp src/abilities/../statuses/shield.hpp \
+ src/abilities/../statuses/status.hpp src/abilities/../core/game.hpp \
  src/abilities/../core/game_field.hpp src/abilities/../core/cell.hpp \
  src/abilities/../core/../statuses/all_statuses.hpp \
  src/abilities/../core/../statuses/status.hpp \
@@ -29,6 +30,10 @@ src/abilities/ability.hpp:
 src/abilities/../core/position.hpp:
 
 src/abilities/../core/direction.hpp:
+
+src/abilities/../statuses/shield.hpp:
+
+src/abilities/../statuses/status.hpp:
 
 src/abilities/../core/game.hpp:
 

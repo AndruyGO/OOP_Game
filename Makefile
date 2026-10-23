@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra -Isrc -I/usr/include/SFML
-LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+CXXFLAGS = -std=c++17 -Wall -Wextra -Isrc -I/usr/include/SFML -fsanitize=address -g
+LDFLAGS = -lsfml-graphics -lsfml-window -lsfml-system -fsanitize=address
 
 SRCS = $(shell find src -name '*.cpp')
 OBJS = $(patsubst src/%.cpp,build/%.o,$(SRCS))

@@ -3,6 +3,7 @@
 #define HEAL_H
 
 #include "ability.hpp"
+#include "../statuses/shield.hpp"
 class Robot;
 
 class Heal : public Ability {

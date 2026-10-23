@@ -1,6 +1,7 @@
 #include "heal.hpp"
 #include "../core/game.hpp"
 #include <iostream>
+
 Heal::Heal(int level) 
   : level_(level),
     energy_cost_(level*50) {
@@ -33,8 +34,21 @@ void Heal::Use(Robot &owner, Game& game, Position pos) {
     if (owner.NowEnergy() < EnergyCost()) return;
 
     owner.SetNowEnergy(owner.NowEnergy() - EnergyCost());
-
+    int remain = owner.MaxHealth() - owner.NowHealth();
+    int delta = heal_amount_ - remain;
     owner.SetNowHealth(owner.NowHealth()+heal_amount_);
+    if(delta > 0) {
+        auto shield_status = game.GetStatus(owner, Status::StatusType::kShield);
+        if(shield_status == nullptr) {
+            game.AddStatus(owner, new Shield(delta));
+        } else {
+            if(shield_status->Count() < heal_amount_) {
+                shield_status->AddToCount(-shield_status->Count() +
+                        std::min(heal_amount_, shield_status->Count() + delta));
+            }
+        }
+    }
+    
 }
 
 int Heal::Radius() const { return 0; }

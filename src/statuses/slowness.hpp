@@ -6,7 +6,7 @@
 class Slowness : public Status {
 public:
 
-    Slowness();
+    Slowness(int count = 1);
 
 
     StatusType GetStatusType() const override;

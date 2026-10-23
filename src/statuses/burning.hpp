@@ -6,7 +6,7 @@
 class Burning : public Status {
 public:
 
-    Burning();
+    Burning(int count = 3);
 
 
     StatusType GetStatusType() const override;

@@ -6,7 +6,7 @@
 class Overload : public Status {
 public:
 
-    Overload();
+    Overload(int count = 1);
 
 
     StatusType GetStatusType() const override;

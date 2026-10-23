@@ -14,16 +14,16 @@ Render::Render(sf::RenderWindow& window) : window_(window) {
         throw std::runtime_error("Statuses not loaded");
 }
 
-void Render::Draw(const Game& game) {
+void Render::Draw(const Game& game, RenderStatus render_status) {
     tile_size_ = std::min(window_.getSize().x, window_.getSize().y)
                 / std::min(game.Field().Height(), game.Field().Width());
             
     
 
     window_.clear(sf::Color::Black);
-    DrawField(game);
+    DrawField(game, render_status);
     DrawPlayer(game);
-    DrawEnemies(game);
+    DrawEnemies(game, render_status);
     DrawBuildings(game);
 
     if(game.GameStatus() == Game::GameStatuses::kGameOver){
@@ -64,7 +64,7 @@ void Render::DrawAbilityRadius(const Game &game) {
 
 float Render::TileSize() const { return tile_size_; }
 
-void Render::DrawField(const Game &game) {
+void Render::DrawField(const Game &game, RenderStatus render_status) {
     const GameField& field = game.Field();
     const PlayerRobot& player = game.Player();
     for (int y = 0; y < field.Height(); ++y) {
@@ -132,6 +132,15 @@ void Render::DrawField(const Game &game) {
                     offset+=tile_size_/4;
                 }
             }
+
+            if(render_status == RenderStatus::kLightUnpassage && field.GetCell(x, y).Passable() == 0 ||
+               (render_status == RenderStatus::kLightStatuses && field.GetCell(x, y).GetStatuses().size() > 0 &&
+                player.NowPosition().DistanceTo(x, y) <= player.VisibilityRadius())) {
+                sf::RectangleShape fadetile({tile_size_ , tile_size_});
+                fadetile.setPosition(x * tile_size_, y * tile_size_);
+                fadetile.setFillColor(sf::Color(250, 250, 0, 128));
+                window_.draw(fadetile);
+            }
             
 
         }
@@ -148,7 +157,7 @@ void Render::DrawPlayer(const Game &game) {
     window_.draw(shape);
 }
 
-void Render::DrawEnemies(const Game &game) {
+void Render::DrawEnemies(const Game &game, RenderStatus render_status) {
     const std::list<EnemyRobot>& robots = game.Robots(); const GameField& field = game.Field();
     const PlayerRobot& player = game.Player();
     for (const auto& r : robots) {
@@ -161,7 +170,17 @@ void Render::DrawEnemies(const Game &game) {
                 case true: shape.setFillColor(sf::Color::Blue); break;
             }
             
-            if(player.NowPosition().DistanceTo(r.NowPosition().X(), r.NowPosition().Y()) <= player.VisibilityRadius()) window_.draw(shape);
+            if(player.NowPosition().DistanceTo(r.NowPosition().X(), r.NowPosition().Y()) <= player.VisibilityRadius()) {
+                window_.draw(shape);
+                if(render_status == RenderStatus::kLightEnemies && r.IsFriendly() == 0) {
+                    sf::RectangleShape fadetile({tile_size_ , tile_size_});
+                    fadetile.setPosition(r.NowPosition().X() * tile_size_,
+                            r.NowPosition().Y() * tile_size_);
+                    fadetile.setFillColor(sf::Color(250, 250, 0, 128));
+                    window_.draw(fadetile);
+                }
+            }
+
         }
     }
 }
@@ -435,4 +454,22 @@ void Render::DrawPlayerStatuses(const Game& game) {
 }
 
 
+
 void Render::Flush() { window_.display(); }
+
+
+void Render::DrawRenderStatus(Game &game, RenderStatus render_status) {
+    if(render_status == RenderStatus::kStandart) return;
+
+    switch(render_status) {
+        case RenderStatus::kLightEnemies:
+
+        break;
+        case RenderStatus::kLightStatuses:
+
+        break;
+        case RenderStatus::kLightUnpassage:
+
+        break;
+    }
+}

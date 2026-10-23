@@ -17,7 +17,7 @@ build/io/render.o: src/io/render.cpp src/io/render.hpp \
  src/io/../core/../abilities/../core/position.hpp \
  src/io/../core/../io/input_contaioner.hpp \
  src/io/../core/../io/../core/commands.hpp \
- src/io/../core/../io/../core/position.hpp
+ src/io/../core/../io/../core/position.hpp src/io/render_status.hpp
 
 src/io/render.hpp:
 
@@ -68,3 +68,5 @@ src/io/../core/../io/input_contaioner.hpp:
 src/io/../core/../io/../core/commands.hpp:
 
 src/io/../core/../io/../core/position.hpp:
+
+src/io/render_status.hpp:

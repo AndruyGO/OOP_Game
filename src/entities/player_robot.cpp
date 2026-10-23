@@ -40,18 +40,17 @@ int PlayerRobot::CalculateXPForRank(int rank){
 }
 
 void PlayerRobot::RankUp () {
-    while(now_xp_ >= xp_required){
-        rank_++;
-        now_xp_ -= xp_required;
-        
-        xp_required = CalculateXPForRank(rank_);
-        max_health_ += 50;
-        max_energy_ += 50;
-        damage_ += 50;
+    rank_++;
+    now_xp_ -= xp_required;
+    
+    xp_required = CalculateXPForRank(rank_);
+    max_health_ += 50;
+    max_energy_ += 50;
+    damage_ += 50;
 
-        now_energy_ = max_energy_;
-        now_health_ = max_health_;
-    }
+    now_energy_ = max_energy_;
+    now_health_ = max_health_;
+
 }
 
 bool PlayerRobot::IsEnoughXP() const {

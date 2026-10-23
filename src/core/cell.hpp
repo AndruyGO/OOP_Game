@@ -10,7 +10,6 @@ private:
     bool is_visited_;
     int movement_cost_;
     std::list<Status*> statuses_;
-    std::list<Status*> items_;
 public:
     
     enum class TypeOfCell {
@@ -20,8 +19,12 @@ public:
     };
 
     Cell(int type, bool is_visited = false, int movement_cost_ = 1);
-    ~Cell() = default;
-
+    ~Cell();
+    Cell(const Cell&) = delete;
+    Cell& operator=(const Cell&) = delete;
+    Cell(Cell&&) = default;
+    Cell& operator=(Cell&&) = default;
+    
     int Type() const;
     bool Passable() const;
     bool IsVisited() const;
@@ -32,9 +35,7 @@ public:
     void SetMovementCost(int value);
 
     std::list<Status*> &GetStatuses();
-    std::list<Status*> &GetItems();
     const std::list<Status*> &GetStatuses() const;
-    const std::list<Status*> &GetItems() const;
     Status *TakeRandomStatus();
     void AddStatus(Status::StatusType status_type);
 };

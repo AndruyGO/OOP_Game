@@ -33,6 +33,7 @@ void InputSystem::HandleEvent(const sf::Event& event) {
         case sf::Keyboard::X:      pending_.command = Command::kUseHeal;   break;
         case sf::Keyboard::C:      pending_.command = Command::kUseFarHit; break;
         case sf::Keyboard::V:      pending_.command = Command::kUseTeleport; break;
+        case sf::Keyboard::T:      pending_.command = Command::kChangeRenderStatus; break;
         case sf::Keyboard::Escape: pending_.command = Command::kQuit;      break;
         default: break;
     }

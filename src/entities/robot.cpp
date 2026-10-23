@@ -32,6 +32,11 @@ Robot::~Robot() {
         a = nullptr;
     }
     abilities_.clear();
+
+    for(auto &status : statuses_) {
+        delete status;
+    }
+    statuses_.clear();
 }
 
 int Robot::MaxHealth() const { return max_health_; }

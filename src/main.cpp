@@ -49,7 +49,7 @@ int main() {
     factories.push_back(RobotFactory(3, {5,5}, 0, 200, 6, false));
 
     
-    Game game(field, std::move(player), std::move(enemies), std::move(factories));
+    Game game(std::move(field), std::move(player), std::move(enemies), std::move(factories));
     //game.AddAbility(game.Player(), Ability::AbilityType::kAreaStrike);
     //game.AddAbility(game.Player(), Ability::AbilityType::kHeal);
     //game.AddAbility(game.Player(), Ability::AbilityType::kFarHit);

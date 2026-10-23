@@ -1,7 +1,7 @@
 #include "slowness.hpp"
 #include "../entities/robot.hpp"
 
-Slowness::Slowness() : count_(1) {}
+Slowness::Slowness(int count) : count_(count) {}
 
 Status::StatusType Slowness::GetStatusType() const {
     return Status::StatusType::kSlowness;
