@@ -8,8 +8,8 @@ class Robot;
 class FarHit : public Ability {
 private:
     int level_;
-    int energy_cost_;
     int radius_;
+    int energy_cost_;
 
 public:
 

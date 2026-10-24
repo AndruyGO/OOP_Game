@@ -16,7 +16,7 @@ Render::Render(sf::RenderWindow& window) : window_(window) {
 
 void Render::Draw(const Game& game, RenderStatus render_status) {
     tile_size_ = std::min(window_.getSize().x, window_.getSize().y)
-                / std::min(game.Field().Height(), game.Field().Width());
+                / std::max(game.Field().Height(), game.Field().Width());
             
     
 
@@ -457,19 +457,3 @@ void Render::DrawPlayerStatuses(const Game& game) {
 
 void Render::Flush() { window_.display(); }
 
-
-void Render::DrawRenderStatus(Game &game, RenderStatus render_status) {
-    if(render_status == RenderStatus::kStandart) return;
-
-    switch(render_status) {
-        case RenderStatus::kLightEnemies:
-
-        break;
-        case RenderStatus::kLightStatuses:
-
-        break;
-        case RenderStatus::kLightUnpassage:
-
-        break;
-    }
-}

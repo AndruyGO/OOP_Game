@@ -13,7 +13,7 @@ enum class ButtonTypes {
     kAbilityButtons
 };
     Button(int width, int height, Position position, ButtonTypes type,
-        std::function<void()> on_click = nullptr, std::function<void()> render_button = nullptr,
+        std::function<Command()> on_click = nullptr, std::function<void()> render_button = nullptr,
         std::function<void()> update_fade = nullptr);
     Button();
 
@@ -24,7 +24,7 @@ enum class ButtonTypes {
 
     bool Contains(int x, int y) const;
     bool Contains(Position pos) const;
-    void SetOnClick(std::function<void()> callback);
+    void SetOnClick(std::function<Command()> callback);
     Command OnClick();
     void SetRenderMethod(std::function<void()> callback);
     void SetFadeUpdate(std::function<void()> callback);
@@ -41,7 +41,7 @@ enum class ButtonTypes {
     int height_;
     Position position_;
     ButtonTypes type_;
-    std::function<void()> on_click_;
+    std::function<Command()> on_click_;
     std::function<void()> render_button_;
     std::function<void()> update_fade_;
 };

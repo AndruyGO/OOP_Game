@@ -90,10 +90,13 @@ void GUI::AddRankUpButtons() {
                     );
                 }
             );
-            ability_button.SetFadeUpdate([this, &ability_button]{
-                if(game_.GameStatus() == Game::GameStatuses::kGameGoing &&
+            ability_button.SetFadeUpdate([this, &ability_button, opt]{
+                if((game_.GameStatus() == Game::GameStatuses::kGameGoing &&
                    game_.InputStatus() == Game::InputStatuses::kStandard &&
-                   ability_button.Contains(input_system_.MousePosition()) )
+                   ability_button.Contains(input_system_.MousePosition()) ) ||
+                    game_.GetStatus(game_.Player(), Status::StatusType::kOverload) ||
+                    game_.GetAbility(game_.Player(), opt.type)->EnergyCost() > 
+                    game_.Player().NowEnergy())
                     {
                     ability_button.is_fade = 1;
                 }else {
@@ -102,6 +105,7 @@ void GUI::AddRankUpButtons() {
             }); 
 
             RemoveRankUpButtons();
+            return Command::kNone;
         });
 
         button.SetFadeUpdate([this, &button]{

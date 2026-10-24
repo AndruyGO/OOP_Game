@@ -38,7 +38,7 @@ void Teleport::Use(Robot &owner, Game& game, Position pos) {
     
     if(target_robot == nullptr && target_factory == nullptr) { 
         owner.SetNowEnergy(owner.NowEnergy() - EnergyCost());
-        owner.SetPosition(pos);
+        game.TryMove(owner, pos);
     }
 }
 

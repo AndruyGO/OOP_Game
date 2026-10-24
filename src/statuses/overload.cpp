@@ -18,6 +18,7 @@ int Overload::Count() const {
 void Overload::AddToCount(int value) {
     count_ += value;
     if(count_ < 0) count_ = 0;
+    if(count_ > 1) count_ = 1;
 }
 bool Overload::IsToRemove() const {
     return Count() == 0;

@@ -16,13 +16,12 @@ GameField::GameField(const std::vector<std::vector<int>> &layout,
     W_ = layout[0].size();
     H_ = layout.size();
     
-    // ПРАВИЛЬНАЯ ИНИЦИАЛИЗАЦИЯ БЕЗ КОПИРОВАНИЯ
     game_field_.clear();
-    game_field_.resize(H_); // Создаем H_ пустых строк
+    game_field_.resize(H_);
     for(int y = 0; y < H_; y++){
-        game_field_[y].reserve(W_); // Резервируем память под W_ клеток
+        game_field_[y].reserve(W_);
         for(int x = 0; x < W_; x++){
-            // Создаем клетку на месте (type=0, is_visited=false, movement_cost=1)
+
             game_field_[y].emplace_back(0, false, 1); 
             
             game_field_[y][x].SetType(layout[y][x]);
@@ -60,20 +59,21 @@ GameField::GameField(int H, int W, bool generate_random_statuses) {
     if(W < kMinWidth) W_ = kMinWidth;
     if(W > kMaxWidth) W_ = kMaxWidth;
     
-    // ПРАВИЛЬНАЯ ИНИЦИАЛИЗАЦИЯ БЕЗ КОПИРОВАНИЯ
     game_field_.clear();
     game_field_.resize(H_); 
     for(int y = 0; y < H_; y++){
         game_field_[y].reserve(W_);
         for(int x = 0; x < W_; x++){
-            game_field_[y].emplace_back(0, false, 1);
+            game_field_[y].emplace_back(1, false, 1);
             
-            game_field_[y][x].SetType(0);
+            game_field_[y][x].SetType(1);
             game_field_[y][x].SetMovementCost(1);
         }
     }
     AddFrame();
     
+    player_start_position_.SetPosition(3, 3);    
+
     // random statuses
     if(generate_random_statuses == 0) return;
     
@@ -95,7 +95,6 @@ GameField::GameField(int H, int W, bool generate_random_statuses) {
         }
     }
 
-    player_start_position_ = Position(1, 1);    
 }
 
 
@@ -210,14 +209,11 @@ Position GameField::NexMoveWithDijksrta(Position start, Position end, int max_mo
         
         if(p.first.second < radius) {
             for(Position pos : {p.second.first.Up(), p.second.first.Right(), p.second.first.Left(), p.second.first.Down()}) {
-                // Проверка на выход за границы и проходимость
                 if(IsInside(pos) && GetCell(pos).Passable() &&
                 GetCell(pos).MovementCost() <=  max_movement) {
                     
                     int new_dist = p.first.first + GetCell(pos).MovementCost();
-                    
-                    // ГЛАВНАЯ ПРОВЕРКА НА ПОСЕЩЕНИЕ:
-                    // Если мы уже были в этой клетке с меньшей или равной дистанцией, пропускаем
+
                     if(new_dist < best_dist[pos.Y()][pos.X()]) {
                         best_dist[pos.Y()][pos.X()] = new_dist;
                         priority_queue.insert({{new_dist, p.first.second + 1}, {pos, p.second.second}});

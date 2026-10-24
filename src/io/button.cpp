@@ -1,7 +1,7 @@
 #include "button.hpp"
 
 Button::Button(int width, int height, Position position,  ButtonTypes type,
-    std::function<void()> on_click, std::function<void()> render_button, std::function<void()> update_fade)
+    std::function<Command()> on_click, std::function<void()> render_button, std::function<void()> update_fade)
     : is_fade(0), width_(width), height_(height), position_(position), type_(type)
     {
         SetOnClick(on_click);
@@ -21,12 +21,13 @@ bool Button::Contains(Position pos) const {
     return Contains(pos.X(), pos.Y());
 }
 
-void Button::SetOnClick(std::function<void()> callback) {
+void Button::SetOnClick(std::function<Command()> callback) {
     on_click_ = std::move(callback);
 }
 
 Command Button::OnClick() {
-    if (on_click_) on_click_();
+    if (on_click_) return on_click_();
+    return Command::kNone;
 }
 
 void Button::SetRenderMethod(std::function<void()> callback) {

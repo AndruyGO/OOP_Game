@@ -33,7 +33,7 @@ void FarHit::Use(Robot &owner, Game& game, Position pos) {
     Robot *target_robot = game.RobotOnPosition(pos);
     RobotFactory *target_factory = game.FactoryOnPosition(pos);
     
-    if(target_robot != nullptr || target_factory != nullptr) { 
+    if((target_robot != nullptr && target_robot->Id() != owner.Id())|| target_factory != nullptr) { 
         owner.SetNowEnergy(owner.NowEnergy() - EnergyCost());
         if(target_robot != nullptr) {
             game.AddStatus(*target_robot, Status::StatusType::kBurning);

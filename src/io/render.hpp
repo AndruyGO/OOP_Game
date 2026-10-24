@@ -37,7 +37,6 @@ public:
     void DrawPlayerStatuses(const Game& game);
     void Flush();
 
-    void DrawRenderStatus(Game &game, RenderStatus render_status);
     
 
     

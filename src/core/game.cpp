@@ -31,6 +31,7 @@ Game::Game(GameField game_field,
                               player_robot_.VisibilityRadius());
         ApplyStatuses(player_robot_, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
         player_robot_.SetPosition(game_field_.PlayerStartPosition());
+        std::cout << game_field_.PlayerStartPosition().X() << std::endl;
 
         max_id_ = std::max(max_id_, player_robot.Id());
         for(auto &robot : robots){
@@ -51,6 +52,7 @@ void Game::Move(InputContainer cmd) {
 
     if(GameStatus() == Game::GameStatuses::kGameGoing) {
         if(IsPlayersMove()){
+            if(Player().MovesRemain() == 0) SwitchMove();
             if(cmd.command == Command::kNone) return;
             ProcessPlayerCommans(cmd); 
         } else {
@@ -76,7 +78,6 @@ void Game::SwitchMove() {
 
 bool Game::ProcessPlayerCommans(InputContainer cmd) {
     bool is_executed = 0;
-
     if(InputStatus() == Game::InputStatuses::kStandard) {
     switch (cmd.command) {
         case Command::kMoveUp:
@@ -215,7 +216,8 @@ void Game::InteractWithBuilding(Robot &actor, Building &target) {
         target.Hit(actor.Damage());
         if(target.NowHealth() <= 0) {
             if(actor.Id() == player_robot_.Id()){
-                
+                player_robot_.AddNowXP(50);
+                RankUp();
             }
             Kill(&target);
         }
@@ -257,8 +259,8 @@ void Game::Kill(Robot *robot){
         SetGameStatus(GameStatuses::kGameOver);
     }else{
         robots_.erase(std::find(robots_.begin(), robots_.end(), *robot));
-        player_robot_.AddNowXP(50);
-        RankUp();
+        //player_robot_.AddNowXP(50);
+        //RankUp();
         if(IsWin()){
             SetGameStatus(GameStatuses::kGamePassed);
         }
