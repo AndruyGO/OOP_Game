@@ -283,7 +283,9 @@ bool Game::IsWin() const {
 
 
 void Game::RobotMove(EnemyRobot& robot) {
-    // 1. Статусы до хода и проверка на смерть (остается как было)
+    // Не думайте, что это нейронка, я сам комменты добавил. Функция большая просто
+
+    // 1. Статусы до хода и проверка на смерть
     ApplyStatuses(robot, Status::StatusType::kNone, Status::StatusGroup::kBeforeMove);
     if(robot.NowHealth() <= 0) {
         if(!robot.IsFriendly()) {
@@ -298,14 +300,14 @@ void Game::RobotMove(EnemyRobot& robot) {
     double dist_to_player = player_robot_.NowPosition().DistanceTo(robot.NowPosition().X(), robot.NowPosition().Y());
     bool player_visible = dist_to_player <= robot.VisibilityRadius();
 
-    // Лечение (Heal)
+    // Лечение
     if (GetAbility(robot, Ability::AbilityType::kHeal) != nullptr && 
         robot.NowHealth() < robot.MaxHealth() && 
         CanRobotUseAbility(robot, Ability::AbilityType::kHeal)) {
         UseAbility(robot, Ability::AbilityType::kHeal, robot.NowPosition());
     }
 
-    // Телепортация (Teleport)
+    // Телепортация
     std::uniform_int_distribution<int> chance_dist(0, 99);
     static std::mt19937 rng(std::random_device{}());
 
@@ -313,9 +315,7 @@ void Game::RobotMove(EnemyRobot& robot) {
         CanRobotUseAbility(robot, Ability::AbilityType::kTeleport)) {
         
         if (player_visible) {
-            // Игрок виден: телепортируемся как можно ближе к нему
             Position target = player_robot_.NowPosition();
-            // Ищем свободную клетку рядом с игроком
             for (Direction d : {Direction::kUp, Direction::kDown, Direction::kLeft, Direction::kRight}) {
                 Position p = target.MoveToDirection(d);
                 if (game_field_.IsInside(p) && game_field_.GetCell(p).Passable() && RobotOnPosition(p) == nullptr) {
@@ -326,8 +326,6 @@ void Game::RobotMove(EnemyRobot& robot) {
             UseAbility(robot, Ability::AbilityType::kTeleport, target);
             
         } else {
-            // Игрок не виден: 30% шанс телепорта в случайное место
-            
             
             if (chance_dist(rng) < 30) {
                 std::vector<Position> valid_spots;
@@ -351,7 +349,6 @@ void Game::RobotMove(EnemyRobot& robot) {
     }
 
     // 3. Движение
-    // Пересчитываем видимость (после телепортации)
     dist_to_player = player_robot_.NowPosition().DistanceTo(robot.NowPosition().X(), robot.NowPosition().Y());
     player_visible = dist_to_player <= robot.VisibilityRadius();
     
@@ -360,7 +357,6 @@ void Game::RobotMove(EnemyRobot& robot) {
     bool random_move = chance_dist(rng) < 20;
     if (player_visible && !random_move) {
 
-        // --- Поиск пути алгоритмом Дейкстры ---
         
         Position nex_pos = game_field_.NexMoveWithDijksrta(robot.NowPosition(), Player().NowPosition(),
                                                         robot.Speed(), robot.VisibilityRadius());
@@ -381,7 +377,6 @@ void Game::RobotMove(EnemyRobot& robot) {
     }
     if(!player_visible || !step_found || random_move) {
             
-        // Если игрок не виден, или путь не найден (окружен) — идем случайно
         while (robot.MovesRemain() > 0) {
 
             std::vector<Position> allowed_positions;
@@ -414,7 +409,6 @@ void Game::RobotsMove() {
     for (auto& robot : robots_) {
         robot.RecoverMoves();
         robot.AddNowEnergy(25);
-        //while(robot.MovesRemain() > 0)
         RobotMove(robot);
     }
     robots_.remove_if([](const Robot &robot){return robot.NowHealth() == 0;});

@@ -187,7 +187,6 @@ Position GameField::NexMoveWithDijksrta(Position start, Position end, int max_mo
     std::set<Node> priority_queue;
     //           dist,      now pos,  first pos after start_pos
 
-    // Массив для хранения лучшей дистанции до каждой клетки
     std::vector<std::vector<int>> best_dist(H_, std::vector<int>(W_, 999999));
 
     for(Position pos : {start.Up(), start.Right(), start.Left(), start.Down()}) {
